@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "JsonMessageApi": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:5001"
+    }
+  }
+}

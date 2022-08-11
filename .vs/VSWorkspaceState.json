@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\bin",
+    "\\bin\\Debug",
+    "\\bin\\Release",
+    "\\bin\\Release\\net5.0",
+    "\\obj",
+    "\\obj\\Debug",
+    "\\obj\\Debug\\net5.0",
+    "\\obj\\Debug\\net5.0\\ref",
+    "\\obj\\Debug\\net5.0\\refint"
+  ],
+  "SelectedNode": "\\obj\\Debug\\net5.0\\JsonMessageApi.MvcApplicationPartsAssemblyInfo.cs",
+  "PreviewInSolutionExplorer": false
+}

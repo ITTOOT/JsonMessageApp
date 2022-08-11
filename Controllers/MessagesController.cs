@@ -14,9 +14,8 @@ using Microsoft.Extensions.Options;
 
 namespace JsonMessageApi.Controllers
 {
-
-
     //[Route("[controller]")]
+    [Route("NS_ArticleCreate")]
     [Route("Messages")]
     [ApiController]
     public class MessagesController : BaseController<MessageDto, MessageDto>

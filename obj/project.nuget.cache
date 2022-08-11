@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "+OPCt5EI5qudMl7z+JFZrZv9IytgKRB0BDOBy3Xj1T5d+EKuzbYLkTmwpPnN7rI8VEd4iXwD5jQCuXrepq6keg==",
+  "dgSpecHash": "R0XikAEp1b0FP9HKF/hD32bQ8Ph50F9pAeXiljhvm/p+MKdbZadPidJKRtg8ZmEFqTG7mHRJSRRqpJvUf4iLoQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApi\\JsonMessageApi.csproj",
+  "projectFilePath": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApp\\JsonMessageApi.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Player_1\\.nuget\\packages\\automapper\\11.0.1\\automapper.11.0.1.nupkg.sha512",
     "C:\\Users\\Player_1\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\11.0.0\\automapper.extensions.microsoft.dependencyinjection.11.0.0.nupkg.sha512",

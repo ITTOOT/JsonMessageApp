@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApi\\JsonMessageApi.csproj": {}
+    "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApp\\JsonMessageApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApi\\JsonMessageApi.csproj": {
+    "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApp\\JsonMessageApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApi\\JsonMessageApi.csproj",
+        "projectUniqueName": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApp\\JsonMessageApi.csproj",
         "projectName": "JsonMessageApi",
-        "projectPath": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApi\\JsonMessageApi.csproj",
+        "projectPath": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApp\\JsonMessageApi.csproj",
         "packagesPath": "C:\\Users\\Player_1\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApi\\obj\\",
+        "outputPath": "C:\\Users\\Player_1\\Desktop\\Working Directory\\WORK\\JsonMessageApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",

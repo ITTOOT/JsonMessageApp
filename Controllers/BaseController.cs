@@ -38,7 +38,8 @@ namespace JsonMessageApi.Controllers
         public async Task<ActionResult<MessageDto>> Get()
         {
             // Find the entity
-            var messages = await _context.Messages.ToListAsync();
+            //var messages = await _context.Messages.ToListAsync();
+            var messages = await _context.MessagesToErps.ToListAsync();
 
             // HTTP 204 No Content
             if (messages == null)
@@ -63,8 +64,6 @@ namespace JsonMessageApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<MessageNameDto>> Post(MessageNameDto message)
         {
-            //var postedEntity = (dynamic)null;
-
             // HTTP 400 Bad Request
             //if (string.IsNullOrEmpty(entityDto.ToString()))
             //    return BadRequest("Bad Request!");

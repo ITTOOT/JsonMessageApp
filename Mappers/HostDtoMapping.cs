@@ -137,7 +137,7 @@ namespace JsonMessageApi.Mappers
                 //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
                 .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
+                .ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
                 .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
                 //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
                 //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????

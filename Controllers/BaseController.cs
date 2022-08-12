@@ -14,9 +14,6 @@ using Microsoft.Extensions.Options;
 
 namespace JsonMessageApi.Controllers
 {
-    //[Route("api/[controller]")]
-    //[Route("Messages")]
-    //[ApiController]
     /// <typeparam name="MessageName"> RecordType == nameof(TelegramName) </typeparam>
     /// <typeparam name="MessageNameDto"> The class used for the serialization </typeparam>
     public abstract class BaseController<MessageName, MessageNameDto> : ControllerBase
@@ -36,7 +33,7 @@ namespace JsonMessageApi.Controllers
         // [Authorize(Roles = "Admin")]
         // [AllowAnon]
         [HttpGet]
-        //[ActionName(nameof(Get))]
+        [ActionName(nameof(Get))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<MessageDto>> Get()
         {
@@ -54,18 +51,17 @@ namespace JsonMessageApi.Controllers
         /// <summary>
 		/// Writes an Message into the FromErp Table
 		/// </summary>
-		///// <param name="message"></param>
+		/// <param name="message"></param>
 		/// <returns>Either Status201Created or Status400BadRequest</returns>
 		[HttpPost]
-        //[ActionName(nameof(Post))]
-        //[Route("Messages")]
+        [ActionName(nameof(Post))]
         [ProducesResponseType(StatusCodes.Status200OK)] // For IActionResult
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<MessageDto>> Post(MessageDto message)
+        public async Task<ActionResult<MessageNameDto>> Post(MessageNameDto message)
         {
             //var postedEntity = (dynamic)null;
 
@@ -82,7 +78,8 @@ namespace JsonMessageApi.Controllers
 
 
             // Map request model to new entity object
-            //var tempEntity = _mapper.Map<MessageDto>(message);
+            //var tempMessage = _mapper.Map<MessageDto>(message);
+            var tempMessage = _mapper.Map<CreateMaterialMaster>(message);
 
             // Find an existing entity
             //var found = await _context.Messages.FindAsync(tempEntity.Uid);
@@ -92,7 +89,8 @@ namespace JsonMessageApi.Controllers
             //    return _mapper.Map<MessagesDto>(found);
 
             // Add entities to the data context
-            await _context.Messages.AddAsync(message);
+            //await _context.Messages.AddAsync(tempMessage);
+            await _context.MessagesToErps.AddAsync(tempMessage);
             await _context.SaveChangesAsync();
 
 
@@ -104,7 +102,7 @@ namespace JsonMessageApi.Controllers
             //    return StatusCode(500, postedOrder.Value);
 
             // HTTP 200 OK
-            return Ok(message);
+            return Ok(tempMessage);
 
             // HTTP 201 created
             // return CreatedAtAction(nameof(PostOrder), new { postedOrder.Value.header });

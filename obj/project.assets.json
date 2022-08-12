@@ -583,6 +583,19 @@
           "lib/netstandard1.0/_._": {}
         }
       },
+      "Serilog/2.11.0": {
+        "type": "package",
+        "compile": {
+          "lib/net5.0/Serilog.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0/Serilog.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Swashbuckle.AspNetCore/6.4.0": {
         "type": "package",
         "dependencies": {
@@ -2757,6 +2770,32 @@
         "lib/netstandard1.0/_._",
         "runtime.native.system.4.3.0.nupkg.sha512",
         "runtime.native.system.nuspec"
+      ]
+    },
+    "Serilog/2.11.0": {
+      "sha512": "ysv+hBzTul6Dp+Hvm10FlhJO3yMQcFKSAleus+LpiIzvNstpeV4Z7gGuIZ1OPNfIMulSHOjmLuGAEDKzpnV8ZQ==",
+      "type": "package",
+      "path": "serilog/2.11.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "icon.png",
+        "lib/net45/Serilog.dll",
+        "lib/net45/Serilog.xml",
+        "lib/net46/Serilog.dll",
+        "lib/net46/Serilog.xml",
+        "lib/net5.0/Serilog.dll",
+        "lib/net5.0/Serilog.xml",
+        "lib/netstandard1.0/Serilog.dll",
+        "lib/netstandard1.0/Serilog.xml",
+        "lib/netstandard1.3/Serilog.dll",
+        "lib/netstandard1.3/Serilog.xml",
+        "lib/netstandard2.0/Serilog.dll",
+        "lib/netstandard2.0/Serilog.xml",
+        "lib/netstandard2.1/Serilog.dll",
+        "lib/netstandard2.1/Serilog.xml",
+        "serilog.2.11.0.nupkg.sha512",
+        "serilog.nuspec"
       ]
     },
     "Swashbuckle.AspNetCore/6.4.0": {
@@ -6062,6 +6101,7 @@
       "Microsoft.EntityFrameworkCore.InMemory >= 5.0.17",
       "Microsoft.EntityFrameworkCore.SqlServer >= 5.0.17",
       "Newtonsoft.Json >= 13.0.1",
+      "Serilog >= 2.11.0",
       "Swashbuckle.AspNetCore >= 6.4.0"
     ]
   },
@@ -6138,6 +6178,10 @@
           "Newtonsoft.Json": {
             "target": "Package",
             "version": "[13.0.1, )"
+          },
+          "Serilog": {
+            "target": "Package",
+            "version": "[2.11.0, )"
           },
           "Swashbuckle.AspNetCore": {
             "target": "Package",

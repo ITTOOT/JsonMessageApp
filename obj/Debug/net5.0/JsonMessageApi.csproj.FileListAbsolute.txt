@@ -132,3 +132,4 @@ C:\Users\Player_1\Desktop\Working Directory\WORK\JsonMessageApp\obj\Debug\net5.0
 C:\Users\Player_1\Desktop\Working Directory\WORK\JsonMessageApp\obj\Debug\net5.0\JsonMessageApi.pdb
 C:\Users\Player_1\Desktop\Working Directory\WORK\JsonMessageApp\obj\Debug\net5.0\JsonMessageApi.genruntimeconfig.cache
 C:\Users\Player_1\Desktop\Working Directory\WORK\JsonMessageApp\obj\Debug\net5.0\ref\JsonMessageApi.dll
+C:\Users\Player_1\Desktop\Working Directory\WORK\JsonMessageApp\bin\Debug\net5.0\Serilog.dll

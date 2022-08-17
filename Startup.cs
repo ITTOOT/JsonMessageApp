@@ -15,6 +15,7 @@ using AutoMapper;
 using JsonMessageApi.Context;
 using Microsoft.AspNetCore.Http;
 using JsonMessageApi.Models;
+using JsonMessageApp.Config;
 //using AutoMapper.Mappers;
 
 namespace JsonMessageApi
@@ -47,7 +48,10 @@ namespace JsonMessageApi
 
             // Auto mapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            
+
+            // Adds the settings object as injectable IOptions into the constructor of any class that needs them.
+            services.Configure<AppSettings>(_configuration.GetSection("AppSettings"));
+
             // Manually register IHttpContextAccessor as a service 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         }

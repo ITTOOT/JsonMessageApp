@@ -5,6 +5,8 @@ using AutoMapper;
 using JsonMessageApi.Context;
 using JsonMessageApi.Models;
 
+using JsonMessageApp.Config;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,20 +20,21 @@ using Serilog;
 
 namespace JsonMessageApi.Controllers
 {
-    /// <typeparam name="MessageName"> RecordType == nameof(TelegramName) </typeparam>
-    /// <typeparam name="MessageNameDto"> The class used for the serialization </typeparam>
-    public abstract class BaseController<MessageName, MessageNameDto> : ControllerBase
+    /// <typeparam name="NameOfTo"> RecordType == nameof(TelegramName) </typeparam>
+    /// <typeparam name="NameOfToDto"> The class used for the serialization </typeparam>
+    public abstract class ToController<NameOfTo, NameOfToDto> : ControllerBase
     {
         // Private readonly IHttpContextAccessor _httpContextAccessor;
         private DataContext _context;
         private readonly IMapper _mapper;
+        private readonly AppSettings _appSettings;
         bool _mirrorOnPost = false; // Sends a copy of the received object back to the client
 
-        public BaseController(DataContext context, IMapper mapper)
+        public ToController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings)
         {
             _context = context;
             _mapper = mapper;
-            _mirrorOnPost = ConfigurationManager.AppSettings["MirrorOnPost"]?.ToBool() ?? false;
+            _mirrorOnPost = appSettings.Value.MirrorOnPost;
         }
 
         //GET: api/<NextOrdersController>
@@ -44,8 +47,8 @@ namespace JsonMessageApi.Controllers
         public async Task<ActionResult<MessageDto>> Get()
         {
             // Find the entity
-            //var messages = await _context.Messages.ToListAsync();
-            var messages = await _context.MessagesToErps.ToListAsync();
+            var messages = await _context.MessagesToErp.ToListAsync();
+            //var messages = await _context.MessagesToErps.ToListAsync();
 
             // HTTP 204 No Content
             if (messages == null)
@@ -68,7 +71,7 @@ namespace JsonMessageApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<MessageNameDto>> Post(MessageNameDto message)
+        public async Task<ActionResult<NameOfToDto>> Post(NameOfToDto message)
         {
             try
             {
@@ -86,7 +89,7 @@ namespace JsonMessageApi.Controllers
 
                 // Map request model to new entity object
                 //var tempMessage = _mapper.Map<MessageDto>(message);
-                var tempMessage = _mapper.Map<CreateMaterialMaster>(message);
+                var tempMessage = _mapper.Map<MessageDto>(message);
 
                 // Find an existing entity
                 //var found = await _context.Messages.FindAsync(tempEntity.Uid);
@@ -97,7 +100,7 @@ namespace JsonMessageApi.Controllers
 
                 // Add entities to the data context
                 //await _context.Messages.AddAsync(tempMessage);
-                await _context.MessagesToErps.AddAsync(tempMessage);
+                await _context.MessagesToErp.AddAsync(tempMessage);
                 await _context.SaveChangesAsync();
 
 
@@ -117,7 +120,7 @@ namespace JsonMessageApi.Controllers
                 // HTTP 204 No Content
                 // return NoContent();
 
-                Log.Write((Serilog.Events.LogEventLevel)LogLevel.Information, $"Post Ok {nameof(MessageName)} Message={message}");
+                Log.Write((Serilog.Events.LogEventLevel)LogLevel.Information, $"Post Ok {nameof(NameOfTo)} Message={message}");
 
                 return CreatedAtAction(nameof(Get), new { id = tempMessage.Id }, _mirrorOnPost ? tempMessage : null);
             }

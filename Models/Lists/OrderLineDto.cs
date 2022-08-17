@@ -25,7 +25,10 @@
 		[JsonProperty("Sku")]
 		public string Sku { get; set; }
 
-		[JsonProperty("PriorityWithinBatch")]
+        [JsonProperty("Qty")]
+        public string Qty { get; set; }
+
+        [JsonProperty("PriorityWithinBatch")]
 		public long PriorityWithinBatch { get; set; }
 
 		public override bool Equals(object obj)

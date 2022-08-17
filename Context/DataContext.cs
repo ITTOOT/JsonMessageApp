@@ -99,7 +99,9 @@ namespace JsonMessageApi.Context
         }
 
         // Tables - Query DB instances of the resource
-        //public DbSet<MessageDto> Messages { get; set; }
-        public DbSet<CreateMaterialMaster> MessagesToErps { get; set; }
+        public DbSet<MessageDto> MessagesToErp { get; set; }
+        //public DbSet<MessageDto> MessagesFromErp { get; set; }
+        public DbSet<OrderLineDto> OrderLines { get; set; }
+        public DbSet<OutgoingGoods> MessagesFromErp { get; set; } // will be ERP table
     }
 }

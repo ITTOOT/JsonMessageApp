@@ -111,5 +111,12 @@ namespace JsonMessageApi.Models
 		[JsonProperty]
 		public string AbcArea { get; set; }
 
-	}
+        /// <summary>
+        /// AbcArea 
+        /// </summary>
+        [XmlAttribute]
+        [JsonProperty]
+        public string UserActivity { get; set; } // Added
+
+    }
 }

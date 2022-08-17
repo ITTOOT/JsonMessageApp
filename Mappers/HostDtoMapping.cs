@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Globalization;
+using System.Reflection.PortableExecutable;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
-
 using AutoMapper;
 
 using JsonMessageApi.Models;
 using JsonMessageApi.Models.Constants;
+
+using static System.Net.Mime.MediaTypeNames;
 
 namespace JsonMessageApi.Mappers
 {
@@ -19,7 +22,6 @@ namespace JsonMessageApi.Mappers
             DateTime localDate = DateTime.Now;
             DateTime utcDate = DateTime.UtcNow;
             var region = new CultureInfo("en-GB");
-            
 
             // Map source to destination...
 
@@ -27,70 +29,38 @@ namespace JsonMessageApi.Mappers
             // Hdr = Bi-directional to & from ERP
             //--------------------------------------------------------------------------------------------
 
+            // Header - Next header information NOT required for StoreWare
             //// Hdr => HostMessage
             //CreateMap<HdrDto, HostMessage>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.Hdr))
-            //    //.ForMember(dest => dest.recordType, opt => opt.MapFrom(src => src.MessageType))
-            //    .ForMember(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.MessageVersion))
-            //    .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Created))
-            //    .ForMember(dest => dest.RefId, opt => opt.MapFrom(src => src.UniqueKey))
-            //    .ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Timestamp, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
+            //    .ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    .ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    .ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    .ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    .ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    .ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    .ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
             //    .ForAllMembers
             //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
             //CreateMap<HostMessage, HdrDto>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(Hdr => Hdr.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    .ForMember(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Created))
-            //    .ForMember(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Timestamp))
+            //    .ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    .ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    .ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    .ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    .ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    .ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
             //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<HdrDto, HostMessage>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.Hdr))
-            //    //.ForMember(dest => dest.recordType, opt => opt.MapFrom(Constant.Undefined))
-            //    .ForMember(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.MessageVersion))
-            //    .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Created))
-            //    .ForMember(dest => dest.RefId, opt => opt.MapFrom(src => src.UniqueKey))
-            //    .ForMember(dest => dest.Creator, opt => opt.MapFrom(src => src.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Timestamp, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<HostMessage, HdrDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(Hdr => Hdr.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    .ForMember(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForMember(dest => dest.Created, opt => opt.MapFrom(src => src.Created))
-            //    .ForMember(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForMember(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Timestamp))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
 
             //--------------------------------------------------------------------------------------------
             // NS = From ERP
@@ -99,33 +69,32 @@ namespace JsonMessageApi.Mappers
             // NS_ArticleCreate => CreateMaterialMaster
             CreateMap<MessageDto, CreateMaterialMaster>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(dest => dest.recordType, opt => opt.UseValue<RecordType>(RecordType.CreateMaterialMaster))
-                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
                 // Request
                 .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.Sku))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.WarehouseCode))
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.WarehouseCode))
                 .ForPath(dest => dest.Description, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.Description))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusActivity))
-                //.ForMember(dest => dest.AbcArea, opt => opt.MapFrom(src => src.HotZoneClassification))
-                //.ForMember(dest => dest.PackagingUnit, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.IsLotNoRequired, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription1, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription2, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription3, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription4, opt => opt.MapFrom(src => src.????))
+                .ForPath(dest => dest.UserActivity, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.BonusActivity)) // Add
+                .ForPath(dest => dest.AbcArea, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.HotZoneClassification))
+                .ForPath(dest => dest.PackagingUnit, opt => opt.MapFrom(src => PackagingUnit.Pcs)) // Default to be entered here = pcs
+                .ForPath(dest => dest.IsLotNoRequired, opt => opt.MapFrom(src => false)) // Default to be entered here = false
+                .ForPath(dest => dest.Client, opt => opt.MapFrom(src => DefaultValues.DefaultClient)) // Default to be entered here = defaultClient
+                .ForPath(dest => dest.Variant, opt => opt.MapFrom(src => DefaultValues.DefaultVariant)) // Default to be entered here = defaultVariant
+                //.ForPath(dest => dest.Subdescription1, opt => opt.MapFrom(src => src.????)) // blank
+                //.ForPath(dest => dest.Subdescription2, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.Subdescription3, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.Subdescription4, opt => opt.MapFrom(src => src.????))
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
                     // Ignore null objects & empty string properties
@@ -136,40 +105,40 @@ namespace JsonMessageApi.Mappers
                     if (property.GetType() == typeof(int) && int.Equals(property, 0))
                         return false;
                     if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
                         return false;
 
                     return true;
                 }));
             CreateMap<CreateMaterialMaster, MessageDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_ArticleCreate => NS_ArticleCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
                 // Request
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                //.ForMember(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.))
+                .ForPath(dest => dest.Request.Ns_ArticleCreate.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.Description, opt => opt.MapFrom(src => src.Description))
-                //.ForMember(dest => dest.BonusActivity, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.HotZoneClassification, opt => opt.MapFrom(src => src.AbcArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PackagingUnit))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.IsLotNoRequired))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Client))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription1))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription2))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription3))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription4))
+                .ForPath(dest => dest.Request.Ns_ArticleCreate.BonusActivity, opt => opt.MapFrom(src => src.UserActivity)) // Add
+                .ForPath(dest => dest.Request.Ns_ArticleCreate.HotZoneClassification, opt => opt.MapFrom(src => src.AbcArea))
+                .ForPath(dest => PackagingUnit.Pcs, opt => opt.MapFrom(src => src.PackagingUnit)) // Default to be entered here = pcs
+                .ForPath(dest => false, opt => opt.MapFrom(src => src.IsLotNoRequired)) // Default to be entered here = false
+                .ForPath(dest => DefaultValues.DefaultClient, opt => opt.MapFrom(src => src.Client)) // Default to be entered here = defaultClient
+                .ForPath(dest => DefaultValues.DefaultVariant, opt => opt.MapFrom(src => src.Variant)) // Default to be entered here = defaultVariant
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription1))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription2))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription3))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription4))
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
                     // Ignore null objects & empty string properties
@@ -181,38 +150,39 @@ namespace JsonMessageApi.Mappers
                         return false;
                     if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
                         return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
                     return true;
                 }));
-            CreateMap<MessageDto, CreateMaterialMaster>()
+
+            // NS_OrderCreate => OutgoingGoods
+            CreateMap<MessageDto, OutgoingGoods>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(dest => dest.recordType, opt => opt.UseValue<RecordType>(RecordType.CreateMaterialMaster))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
                 // Request
-                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.Sku))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.WarehouseCode))
-                .ForPath(dest => dest.Description, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.Description))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusActivity))
-                //.ForMember(dest => dest.AbcArea, opt => opt.MapFrom(src => src.HotZoneClassification))
-                //.ForMember(dest => dest.PackagingUnit, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.IsLotNoRequired, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription1, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription2, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription3, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Subdescription4, opt => opt.MapFrom(src => src.????))
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderReference))
+            //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.BatchReference)) // Add // String to Long
+            //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.Destination)) // Add // String to Long
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.WarehouseCode))
+                .ForPath(dest => dest.BatchPriorityTime, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.PickByTime))
+            //.ForPath(dest => dest.BatchPriority, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.BatchPriority)) // String to Int
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchDescription)) // Required?
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchEndAllowed)) // Add
+                .ForPath(dest => dest.Positions, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderLines))
+                //.ForPath(dest => dest.Client, opt => opt.MapFrom(src => src.????)) // Default client
+                //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????)) // Default enum.OutgoingPlanned
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
                     // Ignore null objects & empty string properties
@@ -224,39 +194,37 @@ namespace JsonMessageApi.Mappers
                         return false;
                     if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
                         return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
                     return true;
                 }));
-            CreateMap<CreateMaterialMaster, MessageDto>()
+            CreateMap<OutgoingGoods, MessageDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_ArticleCreate => NS_ArticleCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
                 // Request
-                .ForPath(dest => dest.Request.Ns_ArticleCreate.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                //.ForMember(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.))
-                .ForPath(dest => dest.Request.Ns_ArticleCreate.Description, opt => opt.MapFrom(src => src.Description))
-                //.ForMember(dest => dest.BonusActivity, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.HotZoneClassification, opt => opt.MapFrom(src => src.AbcArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PackagingUnit))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.IsLotNoRequired))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Client))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription1))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription2))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription3))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription4))
+                .ForPath(dest => dest.Request.NS_OrderCreate.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+            //.ForPath(dest => dest.Request.NS_OrderCreate.BatchReference, opt => opt.MapFrom(src => src.BatchId)) // Add // String to Long
+            //.ForPath(dest => dest.Request.NS_OrderCreate.Destination, opt => opt.MapFrom(src => src.Destination)) // Add // String to Long
+                .ForPath(dest => dest.Request.NS_OrderCreate.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
+                .ForPath(dest => dest.Request.NS_OrderCreate.PickByTime, opt => opt.MapFrom(src => src.BatchPriorityTime))
+            //.ForPath(dest => dest.Request.NS_OrderCreate.BatchPriority, opt => opt.MapFrom(src => src.BatchPriority)) // Add // String to Int
+                //.ForPath(dest => dest.BatchDescription, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.BatchEndAllowed, opt => opt.MapFrom(src => src.????))
+                .ForPath(dest => dest.Request.NS_OrderCreate.OrderLines, opt => opt.MapFrom(src => src.Positions))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Client))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
                     // Ignore null objects & empty string properties
@@ -268,1186 +236,197 @@ namespace JsonMessageApi.Mappers
                         return false;
                     if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
                         return false;
-
-                    return true;
-                }));
-
-            // NS_OrderCreate => IncomingGoods
-            CreateMap<MessageDto, IncomingGoods>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderCreate))
-                .ForMember(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
-                .ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.WarehouseCode))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PickByTime))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchDescription))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchEndAllowed))
-                .ForMember(dest => dest.Positions, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderLines))
-                //.ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<IncomingGoods, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderCreate))
-                .ForMember(dest => dest.Request.NS_OrderCreate.OrderReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
-                //.ForMember(dest => dest.BatchReference, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Request.NS_OrderCreate.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.PickByTime), opt => opt.MapFrom(src => src.????)
-                //.ForMember(dest => dest.BatchDescription, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.BatchEndAllowed, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Request.NS_OrderCreate.OrderLines, opt => opt.MapFrom(src => src.Positions))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Client))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<MessageDto, IncomingGoods>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderCreate))
-                .ForMember(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
-                .ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.WarehouseCode))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PickByTime))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchDescription))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchEndAllowed))
-                .ForMember(dest => dest.Positions, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderLines))
-                //.ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<IncomingGoods, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderCreate))
-                .ForMember(dest => dest.Request.NS_OrderCreate.OrderReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
-                //.ForMember(dest => dest.BatchReference, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Request.NS_OrderCreate.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.PickByTime), opt => opt.MapFrom(src => src.????)
-                //.ForMember(dest => dest.BatchDescription, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.BatchEndAllowed, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Request.NS_OrderCreate.OrderLines, opt => opt.MapFrom(src => src.Positions))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Client))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
                         return false;
 
                     return true;
                 }));
 
-            //// NS_OrderUpdate => 
-            //CreateMap<MessageDto, ????>()
+            ////// NS_OrderUpdate => MAKE NEW MODEL
+            ////CreateMap<MessageDto, ????>()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            ////    // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            ////    // Request
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.OrderReference))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PickByTime))
+            ////    
+
+            ////CreateMap<????, MessageDto >()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            ////    // Request
+            ////    
+
+            ////// NS_OrderCancel => MAKE NEW MODEL
+            ////CreateMap < MessageDto, ????> ()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            ////    //.ForPath(fromErp => dest.????, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderCancel))
+            ////    // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            ////    // Request
+            ////    .ForPath(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderReference))
+            ////    
+            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            ////CreateMap <????, MessageDto > ()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            ////    // Request
+            ////    //.ForPath(NS_OrderCancel => NS_OrderCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
+            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            ////// NS_OrderLineCancel => MAKE NEW MODEL
+            ////CreateMap<MessageDto, ????>()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            ////    // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            ////    // Request
+            ////    //.ForPath(fromErp => dest.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderLineCancel))
+            ////    //.ForPath(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderReference))
+            ////    //.ForPath(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderLineCancel))
+            ////    //.ForPath(fromErp => dest.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
+            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            ////CreateMap<????, MessageDto>()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            ////    // Request
+            ////    //.ForPath(NS_OrderLineCancel => NS_OrderLineCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
+            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            ////// NS_ValidationError => MAKE NEW MODEL
+            ////CreateMap<MessageDto, ????>()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            ////    // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            ////    // Request
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MessageType))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MessageVersion))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Created))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.UniqueKey))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SenderId))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationId))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ResendCounter))
+            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            ////CreateMap<????, MessageDto>()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            ////    // Request
+            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            ////--------------------------------------------------------------------------------------------
+            //// GS = To ERP
+            ////--------------------------------------------------------------------------------------------
+
+            //// GS_StockAdjustment => QuantityCorrection
+            //CreateMap<MessageDto, QuantityCorrection>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
             //    // Request
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.OrderReference))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PickByTime))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-
-            //CreateMap<????, MessageDto >()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_OrderUpdate => NS_OrderUpdate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-
-            //CreateMap<MessageDto, ????> ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-
-            //CreateMap<????, MessageDto >()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_OrderUpdate => NS_OrderUpdate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-
-
-            //// NS_OrderCancel => 
-            //CreateMap < MessageDto, ????> ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(fromErp => fromErp.????, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderCancel))
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    .ForMember(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderReference))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap <????, MessageDto > ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_OrderCancel => NS_OrderCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap < MessageDto, ????> ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap <????, MessageDto > ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_OrderCancel => NS_OrderCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            //// NS_OrderLineCancel => 
-            //CreateMap<MessageDto, ????>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderLineCancel))
-            //    //.ForMember(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderReference))
-            //    //.ForMember(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderLineCancel))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<????, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_OrderLineCancel => NS_OrderLineCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<MessageDto, ????>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    .ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderLineCancel))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<????, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_OrderLineCancel => NS_OrderLineCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            //// NS_ValidationError => 
-            //CreateMap<MessageDto, ????>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_ValidationError))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MessageType))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MessageVersion))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Created))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.UniqueKey))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.SenderId))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.DestinationId))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<????, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_ValidationError => NS_ValidationError.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<MessageDto, ????>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    .ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_ValidationError))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<????, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(NS_ValidationError => NS_ValidationError.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            //--------------------------------------------------------------------------------------------
-            // GS = To ERP
-            //--------------------------------------------------------------------------------------------
-
-            // GS_StockAdjustment => QuantityCorrection
-            CreateMap<MessageDto, QuantityCorrection>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_StockAdjustment))
-                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Sku))
-                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.WarehouseCode))
-                .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.AdjustmentDate))
-                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Bdcid))
-                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Upos))
-                .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason))
-                .ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.BonusNo))
-                //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<QuantityCorrection, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_StockAdjustment))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty))
-                //.ForMember(dest => dest.AdjustmentDate, opt => opt.MapFrom(src => src.????))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Bdcid, opt => opt.MapFrom(src => src.Barcode))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Upos, opt => opt.MapFrom(src => src.Barcode))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => src.ReasonCode))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.BonusNo, opt => opt.MapFrom(src => src.MovementType))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Username))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<MessageDto, QuantityCorrection>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_StockAdjustment))
-                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Sku))
-                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.WarehouseCode))
-                .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.AdjustmentDate))
-                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Bdcid))
-                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Upos))
-                .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason))
-                .ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.BonusNo))
-                //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<QuantityCorrection, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_StockAdjustment))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty))
-                //.ForMember(dest => dest.AdjustmentDate, opt => opt.MapFrom(src => src.????))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Bdcid, opt => opt.MapFrom(src => src.Barcode))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Upos, opt => opt.MapFrom(src => src.Barcode))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => src.ReasonCode))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.BonusNo, opt => opt.MapFrom(src => src.MovementType))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Username))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-
-            // GS_InventorySnapshot => StockReport
-            CreateMap<MessageDto, StockReport>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_InventorySnapshot))
-                .ForMember(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Sku))
-                .ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.WarehouseCode))
-                .ForMember(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Quantity))
-                .ForMember(dest => dest.LastIncoming, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastInductDate))
-                .ForMember(dest => dest.LastOutgoing, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastRetrievedDate))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<StockReport, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_InventorySnapshot))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.Quantity, opt => opt.MapFrom(src => src.ActualQty))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.LastInductDate, opt => opt.MapFrom(src => src.LastIncoming))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.LastRetrievedDate, opt => opt.MapFrom(src => src.LastOutgoing))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<MessageDto, StockReport>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_InventorySnapshot))
-                .ForMember(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Sku))
-                .ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.WarehouseCode))
-                .ForMember(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Quantity))
-                .ForMember(dest => dest.LastIncoming, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastInductDate))
-                .ForMember(dest => dest.LastOutgoing, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastRetrievedDate))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<StockReport, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_InventorySnapshot))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.Quantity, opt => opt.MapFrom(src => src.ActualQty))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.LastInductDate, opt => opt.MapFrom(src => src.LastIncoming))
-                .ForMember(dest => dest.Request.GS_InventorySnapshot.LastRetrievedDate, opt => opt.MapFrom(src => src.LastOutgoing))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-
-            // GS_PickConfirmation => OutgoingGoodsPositionConfirmation
-            CreateMap<MessageDto, OutgoingGoodsPositionConfirmation>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickConfirmation))
-                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderReference))
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineNo))
-                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineReference))
-                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.ToteId))
-                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickedUpos))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PickTime))
-                //.ForMember(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.ActualQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.DestinationRackNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.DestinationRackPosition, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<OutgoingGoodsPositionConfirmation, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickConfirmation))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => src.ArticleNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.ToteId, opt => opt.MapFrom(src => src.TubNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.PickedUpos, opt => opt.MapFrom(src => src.Barcode))
-                //.ForMember(dest => dest.BonusNo, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.PickTime, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.ActualQty))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackPosition))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Username))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Name))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<MessageDto, OutgoingGoodsPositionConfirmation>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickConfirmation))
-                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderReference))
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineNo))
-                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineReference))
-                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.ToteId))
-                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickedUpos))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PickTime))
-                //.ForMember(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.ActualQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.DestinationRackNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.DestinationRackPosition, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Username, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<OutgoingGoodsPositionConfirmation, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickConfirmation))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => src.ArticleNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.ToteId, opt => opt.MapFrom(src => src.TubNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.PickedUpos, opt => opt.MapFrom(src => src.Barcode))
-                //.ForMember(dest => dest.BonusNo, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.PickTime, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.ActualQty))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackPosition))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Username))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Name))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-
-            // GS_ToteAssignment => TubAssignment
-            CreateMap<MessageDto, TubAssignment>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_ToteAssignment))
-                .ForMember(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.ToteId))
-                .ForMember(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.TrolleyId))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderLineNo))
-                .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.DestinationPure))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<TubAssignment, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_ToteAssignment))
-                .ForMember(dest => dest.Request.GS_ToteAssignment.ToteId, opt => opt.MapFrom(src => src.TubNo))
-                .ForMember(dest => dest.Request.GS_ToteAssignment.TrolleyId, opt => opt.MapFrom(src => src.TrolleyNo))
-                //.ForMember(dest => dest.Request.GS_ToteAssignment.OrderReference, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_ToteAssignment.OrderLineNo, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.Destination))
-                //.ForMember(dest => dest.DestinationPure, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<MessageDto, TubAssignment>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_ToteAssignment))
-                .ForMember(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.ToteId))
-                .ForMember(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.TrolleyId))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderLineNo))
-                .ForMember(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.DestinationPure))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<TubAssignment, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_ToteAssignment))
-                .ForMember(dest => dest.Request.GS_ToteAssignment.ToteId, opt => opt.MapFrom(src => src.TubNo))
-                .ForMember(dest => dest.Request.GS_ToteAssignment.TrolleyId, opt => opt.MapFrom(src => src.TrolleyNo))
-                //.ForMember(dest => dest.Request.GS_ToteAssignment.OrderReference, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_ToteAssignment.OrderLineNo, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.Destination))
-                //.ForMember(dest => dest.DestinationPure, opt => opt.MapFrom(src => src.))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-
-            //// GS_TrolleyComplete => 
-            //CreateMap<MessageDto, ????>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_TrolleyComplete))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyId))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Totes))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
+            //    .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Sku))
+            //    .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.WarehouseCode))
+            //    .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity)) // +/-
+            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentDate))
+            //    .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Bdcid))
+            //    .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Upos))
+            //    .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason))
+            //    //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????)) // Ignore
+            //    //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????)) // Expected amount
+            //    .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.BonusNo))
             //    .ForAllMembers(x => x.Condition((source, destination, property) =>
             //    {
             //        // Ignore null objects & empty string properties
@@ -1462,93 +441,31 @@ namespace JsonMessageApi.Mappers
 
             //        return true;
             //    }));
-            //CreateMap <????, MessageDto >()
+            //CreateMap<QuantityCorrection, MessageDto>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
             //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_TrolleyComplete))
-            //    .ForMember(dest => dest.TrolleyId, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Totes, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
-
-            //        return true;
-            //    }));
-            //CreateMap <MessageDto, ????> ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_TrolleyComplete))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyId))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Totes))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
-
-            //        return true;
-            //    }));
-            //CreateMap <????, MessageDto >()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_TrolleyComplete))
-            //    .ForMember(dest => dest.TrolleyId, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Totes, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty)) // +/-
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentDate, opt => opt.MapFrom(src => src.Created))
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Bdcid, opt => opt.MapFrom(src => src.Barcode))
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Upos, opt => opt.MapFrom(src => src.Barcode))
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => src.ReasonCode))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType)) // Ignore
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty)) // Expected amount
+            //    .ForPath(dest => dest.Request.GS_StockAdjustment.BonusNo, opt => opt.MapFrom(src => src.Username))
             //    .ForAllMembers(x => x.Condition((source, destination, property) =>
             //    {
             //        // Ignore null objects & empty string properties
@@ -1564,324 +481,28 @@ namespace JsonMessageApi.Mappers
             //        return true;
             //    }));
 
-            // GS_PickCancellation => PickCancelation
-            CreateMap<MessageDto, PickCancelation>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellation))
-                .ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.BonusNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.ReasonCode))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.Cancellations))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<PickCancelation, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellation))
-                .ForMember(dest => dest.Request.GS_PickCancellation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-                //.ForMember(dest => dest.Request.GS_PickCancellation.BonusNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellation.ReasonCode, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellation.Cancellations, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<MessageDto, PickCancelation>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellation))
-                .ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.BonusNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.ReasonCode))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.Cancellations))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<PickCancelation, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellation))
-                .ForMember(dest => dest.Request.GS_PickCancellation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-                //.ForMember(dest => dest.Request.GS_PickCancellation.BonusNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellation.ReasonCode, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellation.Cancellations, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-
-            // GS_PickCancellationRequest => CancelRequest
-            CreateMap<MessageDto, CancelRequest>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellationRequest))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.BonusNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.CancellationRequestsDto))
-                //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.????))
-                //.ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<CancelRequest, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellationRequest))
-                //.ForMember(dest => dest.Request.GS_PickCancellationRequest.OrderReference, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellationRequest.BonusNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellationRequest.CancellationRequestsDto, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.OutgoingGoodsNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.PositionNo))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<MessageDto, CancelRequest>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-                .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-                //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-                .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellationRequest))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.OrderReference))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.BonusNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.CancellationRequestsDto))
-                //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.????))
-                //.ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap<CancelRequest, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                // Header
-                //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-                //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-                .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-                //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-                .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-                //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-                //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-                .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-                // Request
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_PickCancellationRequest))
-                //.ForMember(dest => dest.Request.GS_PickCancellationRequest.OrderReference, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellationRequest.BonusNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Request.GS_PickCancellationRequest.CancellationRequestsDto, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.OutgoingGoodsNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Request.PositionNo))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-
-            //// GS_Event => 
-            //CreateMap<MessageDto, ????>()
+            //// GS_InventorySnapshot => StockReport
+            //CreateMap<MessageDto, StockReport>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
             //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_Event))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusNo))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.EventTime))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusActivity))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.WarehouseCode))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
+            //    .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Sku))
+            //    .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.WarehouseCode))
+            //    .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Quantity))
+            //    .ForPath(dest => dest.LastIncoming, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastInductDate))
+            //    .ForPath(dest => dest.LastOutgoing, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastRetrievedDate))
+            //    .ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate))
             //    .ForAllMembers(x => x.Condition((source, destination, property) =>
             //    {
             //        // Ignore null objects & empty string properties
@@ -1896,99 +517,26 @@ namespace JsonMessageApi.Mappers
 
             //        return true;
             //    }));
-            //CreateMap <????, MessageDto >()
+            //CreateMap<StockReport, MessageDto>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
             //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_Event))
-            //    //.ForMember(dest => dest.BonusNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.EventTime, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.BonusActivity, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
-
-            //        return true;
-            //    }));
-            //CreateMap <MessageDto, ????> ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForPath(dest => dest.CcuVersion, opt => opt.MapFrom(src => src.Hdr.MessageVersion))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created))
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey))
-            //    .ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForMember(fromErp => fromErp.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Process, opt => opt.MapFrom(src => src.????))
-            //    .ForMember(dest => dest.Timestamp.ToString(), opt => opt.MapFrom(src => utcDate.ToString(region)))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_Event))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusNo))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.EventTime))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.BonusActivity))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.WarehouseCode))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
-
-            //        return true;
-            //    }));
-            //CreateMap <????, MessageDto >()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header
-            //    //.ForMember(NS_OrderCreate => NS_OrderCreate.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    //.ForMember(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.Hdr.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion))
-            //    .ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.Hdr.UniqueKey, opt => opt.MapFrom(src => src.RefId))
-            //    .ForPath(dest => dest.Hdr.SenderId, opt => opt.MapFrom(src => src.Creator))
-            //    //.ForMember(fromErp => fromErp.Hdr.DestinationId, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.Hdr.ResendCounter, opt => opt.MapFrom(src => ????
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForMember(fromErp => fromErp.????, opt => opt.MapFrom(src => src.Process))
-            //    .ForMember(dest => utcDate.ToString(region), opt => opt.MapFrom(src => src.Timestamp.ToString()))
-            //    // Request
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.GS_Event))
-            //    //.ForMember(dest => dest.BonusNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.EventTime, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.BonusActivity, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
+            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
+            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.Quantity, opt => opt.MapFrom(src => src.ActualQty))
+            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.LastInductDate, opt => opt.MapFrom(src => src.LastIncoming))
+            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.LastRetrievedDate, opt => opt.MapFrom(src => src.LastOutgoing))
             //    .ForAllMembers(x => x.Condition((source, destination, property) =>
             //    {
             //        // Ignore null objects & empty string properties
@@ -2004,276 +552,754 @@ namespace JsonMessageApi.Mappers
             //        return true;
             //    }));
 
-
-            //--------------------------------------------------------------------------------------------
-            // List entities
-            //--------------------------------------------------------------------------------------------
-
-            // GS_TrolleyCompleteDto > Tote => 
-            CreateMap < MessageDto, ????>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.ToteId))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap <????, MessageDto >()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                //.ForMember(dest => dest.ToteId, opt => opt.MapFrom(src => src.????))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                // Ignore null objects & empty string properties
-                if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap <MessageDto, ????> ()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.ToteId))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-            CreateMap <????, MessageDto >()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                //.ForMember(dest => dest.ToteId, opt => opt.MapFrom(src => src.????))
-                .ForAllMembers(x => x.Condition((source, destination, property) =>
-                {
-                    // Ignore null objects & empty string properties
-                    if (property == null)
-                        return false;
-                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-                        return false;
-                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
-                        return false;
-                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-                        return false;
-
-                    return true;
-                }));
-
-            // OrderLine => IncomingGoodsPosition
-            CreateMap<MessageDto, IncomingGoodsPosition>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.OrderLine))
-                .ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-                .ForMember(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-                .ForMember(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.ExpirationDate, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.SpecialStockNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.SpecialStockIndicator, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.FiFo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<IncomingGoodsPosition, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForMember(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-                .ForMember(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
-                .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                //.ForMember(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.ExpirationDate))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockIndicator))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.FiFo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-                //.ForMember(OrderLine => OrderLine.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<MessageDto, IncomingGoodsPosition>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.OrderLine))
-                .ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-                .ForMember(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-                .ForMember(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
-                //.ForMember(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.ExpirationDate, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.SpecialStockNo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.SpecialStockIndicator, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.FiFo, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-                //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-                .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<IncomingGoodsPosition, MessageDto>()
-                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForMember(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-                .ForMember(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
-                .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                //.ForMember(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.ExpirationDate))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockNo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockIndicator))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.FiFo))
-                //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-                //.ForMember(OrderLine => OrderLine.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-                .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            //// OrderLine => OutgoingGoodsPosition
-            //CreateMap<MessageDto, OutgoingGoodsPosition>()
+            //// GS_PickConfirmation => OutgoingGoodsPositionConfirmation
+            //CreateMap<MessageDto, OutgoingGoodsPositionConfirmation>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.OrderLine))
-            //    .ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-            //    .ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-            //    .ForMember(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
-            //    //.ForMember(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<OutgoingGoodsPosition, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForMember(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-            //    .ForMember(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-            //    .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-            //    //.ForMember(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Client))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
-            //    //.ForMember(OrderLine => OrderLine.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<MessageDto, OutgoingGoodsPosition>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.OrderLine))
-            //    .ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-            //    .ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-            //    .ForMember(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
-            //    //.ForMember(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.Client, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<OutgoingGoodsPosition, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForMember(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-            //    .ForMember(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-            //    .ForMember(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-            //    //.ForMember(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Client))
-            //    //.ForMember(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
-            //    //.ForMember(OrderLine => OrderLine.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderReference))
+            //    .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineReference))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineNo)) // What is this?
+            //    //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
+            //    .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.ToteId))
+            //    .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickedUpos))
+            //    .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.BonusNo))
+            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickTime))
+            //    //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
+            //    .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.Qty))
+            //    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.DestinationRackNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.DestinationRackPosition, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.Name, opt => opt.MapFrom(src => src.????))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
 
-            //// OrderLineCancel => 
-            //CreateMap<MessageDto, FromErp>()
+            //        return true;
+            //    }));
+            //CreateMap<OutgoingGoodsPositionConfirmation, MessageDto>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.OrderLineCancel))
-            //    //.ForMember(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderReference))
-            //    //.ForMember(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderLineCancel))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<FromErp, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(OrderLineCancel => OrderLineCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<MessageDto, ToErp>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.OrderLineCancel))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<ToErp, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(OrderLineCancel => OrderLineCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.Request.GS_PickConfirmation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+            //    .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => src.PositionNo)) // What is this?
+            //    //.ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.Request.GS_PickConfirmation.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+            //    .ForPath(dest => dest.Request.GS_PickConfirmation.ToteId, opt => opt.MapFrom(src => src.TubNo))
+            //    .ForPath(dest => dest.Request.GS_PickConfirmation.PickedUpos, opt => opt.MapFrom(src => src.Barcode))
+            //    .ForPath(dest => dest.Request.GS_PickConfirmation.BonusNo, opt => opt.MapFrom(src => src.Username))
+            //    .ForPath(dest => dest.Request.GS_PickConfirmation.PickTime, opt => opt.MapFrom(src => src.Created))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
+            //    .ForPath(dest => dest.Request.GS_PickConfirmation.Qty, opt => opt.MapFrom(src => src.ActualQty))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackPosition))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Username))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Name))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
 
-            //// CancellationDto => PickCancelation
+            //        return true;
+            //    }));
+
+            //// GS_ToteAssignment => TubAssignment
+            //CreateMap<MessageDto, TubAssignment>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.ToteId))
+            //    .ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.TrolleyId))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderReference)) // Do Next need this?
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderLineNo)) // Do Next need this?
+            //    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
+            //    .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationPure)) // TBC - For batch end tails
+            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????)) // Do Next need this?
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+            //CreateMap<TubAssignment, MessageDto>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.Request.GS_ToteAssignment.ToteId, opt => opt.MapFrom(src => src.TubNo))
+            //    .ForPath(dest => dest.Request.GS_ToteAssignment.TrolleyId, opt => opt.MapFrom(src => src.TrolleyNo))
+            //    //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderReference, opt => opt.MapFrom(src => src.????)) // Do Next need this?
+            //    //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderLineNo, opt => opt.MapFrom(src => src.????)) // Do Next need this?
+            //    //.ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.Destination))
+            //    .ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.StorageArea))
+            //    //.ForPath(dest => dest.DestinationPure, opt => opt.MapFrom(src => src.)) // TBC - For batch end tails
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId)) // Do Next need this?
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+
+            ////// GS_TrolleyComplete => MAKE NEW MODEL
+            ////CreateMap < MessageDto, ????> ()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            ////    // Request
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyId))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Totes))
+            ////    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
+            ////    //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
+            ////    //.ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.????))
+            ////    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
+            ////    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            ////    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            ////    {
+            ////        // Ignore null objects & empty string properties
+            ////        if (property == null)
+            ////            return false;
+            ////        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            ////            return false;
+            ////        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            ////            return false;
+            ////        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            ////            return false;
+
+            ////        return true;
+            ////    }));
+            ////CreateMap <????, MessageDto > ()
+            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            // Header - Next header information NOT required for StoreWare
+            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            ////    // Request
+            ////    //.ForPath(dest => dest.TrolleyId, opt => opt.MapFrom(src => src.????))
+            ////    //.ForPath(dest => dest.Totes, opt => opt.MapFrom(src => src.????))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TubNo))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
+            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+            ////    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            ////    {
+            ////        // Ignore null objects & empty string properties
+            ////        if (property == null)
+            ////            return false;
+            ////        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            ////            return false;
+            ////        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            ////            return false;
+            ////        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            ////            return false;
+
+            ////        return true;
+            ////    }));
+
+            //// GS_PickCancellation => PickCancelation
             //CreateMap<MessageDto, PickCancelation>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.Cancellation))
-            //    .ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-            //    .ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-            //    //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<FromErp, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(Cancellations => Cancellations.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<MessageDto, ToErp>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.Cancellation))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<ToErp, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(Cancellations => Cancellations.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.OrderReference))
+            //    .ForPath(dest => dest.UserName, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.BonusNo)) // Add username
+            //    .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.ReasonCode))
+            //    .ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.Cancellations))
+            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
 
-            //// CancellationRequests => CancelRequest
-            //CreateMap<MessageDto, RequestCancelation>()
+            //        return true;
+            //    }));
+            //CreateMap<PickCancelation, MessageDto>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.CancellationRequests))
-            //    .ForMember(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-            //    .ForMember(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-            //    //.ForMember(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<FromErp, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(CancellationRequests => CancellationRequests.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<MessageDto, ToErp>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForMember(fromErp => fromErp.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.CancellationRequests))
-            //    //.ForMember(fromErp => fromErp.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            //CreateMap<ToErp, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    //.ForMember(CancellationRequests => CancellationRequests.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            //    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.Request.GS_PickCancellation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+            //    .ForPath(dest => dest.Request.GS_PickCancellation.BonusNo, opt => opt.MapFrom(src => src.UserName)) // Add username
+            //    .ForPath(dest => dest.Request.GS_PickCancellation.ReasonCode, opt => opt.MapFrom(src => src.ReasonCode))
+            //    .ForPath(dest => dest.Request.GS_PickCancellation.Cancellations, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PositionNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ArticleNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.CancelQty))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
 
-        }
+            //        return true;
+            //    }));
+
+            //// GS_PickCancellationRequest => CancelRequest
+            //CreateMap<MessageDto, CancelRequest>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.OrderReference)) // Add
+            //    .ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.BonusNo)) // Add
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.CancellationRequestsDto))
+            //    .ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????)) // Required in Next system
+            //    //.ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.????)) // Required in Next system CancellationRequestsDtoCancellationRequestsDto.OrderLineNo
+            //    //.ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.????))// Required in Next system (should be in each cancellation) CancellationRequestsDto.OrderLineReference
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+            //CreateMap<CancelRequest, MessageDto>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            //    // Request
+            //    .ForPath(dest => dest.Request.GS_PickCancellationRequest.OrderReference, opt => opt.MapFrom(src => src.????)) // Add
+            //    .ForPath(dest => dest.Request.GS_PickCancellationRequest.BonusNo, opt => opt.MapFrom(src => src.????)) // Add
+            //    //.ForPath(dest => dest.Request.GS_PickCancellationRequest.CancellationRequestsDto, opt => opt.MapFrom(src => src.????))
+            //    .ForPath(dest => dest.Request.GS_PickCancellationRequest.BatchReference, opt => opt.MapFrom(src => src.BatchId)) // Required in Next system
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.OutgoingGoodsNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.PositionNo))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+
+            //// GS_Event => MAKE NEW MODEL
+            //CreateMap < MessageDto, ????> ()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+            //    // Request
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BonusNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.EventTime))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BonusActivity))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.WarehouseCode))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+            //CreateMap <????, MessageDto > ()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    // Header - Next header information NOT required for StoreWare
+            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+            //    // Request
+            //    //.ForPath(dest => dest.BonusNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.EventTime, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.BonusActivity, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.????))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+
+            ////--------------------------------------------------------------------------------------------
+            //// List entities
+            ////--------------------------------------------------------------------------------------------
+
+            //// GS_TrolleyCompleteDto > Tote => 
+            //CreateMap <ToteDto, TubAssignment>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.ToteId))
+            //    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+            //CreateMap <TubAssignment, ToteDto>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    .ForPath(dest => dest.ToteId, opt => opt.MapFrom(src => src.TubNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+
+            //// OrderLine => IncomingGoodsPosition
+            //CreateMap<OrderLineDto, IncomingGoodsPosition>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
+            //    .ForPath(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+            //    .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
+            //    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.ExpirationDate, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.SpecialStockNo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.SpecialStockIndicator, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.FiFo, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+            //CreateMap<IncomingGoodsPosition, OrderLineDto>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
+            //    .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
+            //    .ForPath(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+            //    //.ForPath(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ExpirationDate))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockNo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockIndicator))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.FiFo))
+            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+
+            // OrderLine => OutgoingGoodsPosition
+            CreateMap<OrderLineDto, OutgoingGoodsPosition>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
+                //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.PriorityWithinBatch))
+                //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
+                .ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.Qty))
+                //.ForPath(dest => dest.Client, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+            CreateMap<OutgoingGoodsPosition, OrderLineDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
+                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+                .ForPath(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+                //.ForPath(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.Destination))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
+                .ForPath(dest => dest.Qty, opt => opt.MapFrom(src => src.TargetQty))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Client))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+
+            //// OrderLineCancel => 
+            //CreateMap<OrderLineCancelDto, CancelRequest>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
+            //    .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+            //CreateMap<CancelRequest, OrderLineCancelDto>()
+            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //    .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
+            //    .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //    {
+            //        // Ignore null objects & empty string properties
+            //        if (property == null)
+            //            return false;
+            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //            return false;
+            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //            return false;
+            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //            return false;
+
+            //        return true;
+            //    }));
+
+        //    // GS_PickCancellationDto > CancellationDto => PickCancelation
+        //    CreateMap<CancellationDto, PickCancelation>()
+        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+        //        .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference)) // Add
+        //        .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo)) // Add
+        //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+        //        //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
+        //        //.ForPath(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
+        //        //.ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.????))
+        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+        //        {
+        //            // Ignore null objects & empty string properties
+        //            if (property == null)
+        //                return false;
+        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+        //                return false;
+        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+        //                return false;
+        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+        //                return false;
+
+        //            return true;
+        //        }));
+        //    CreateMap<PickCancelation, CancellationDto>()
+        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+        //        .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo)) // Add
+        //        .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo)) // Add
+        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ArticleNo))
+        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.CancelQty))
+        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ReasonCode))
+        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+        //        {
+        //            // Ignore null objects & empty string properties
+        //            if (property == null)
+        //                return false;
+        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+        //                return false;
+        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+        //                return false;
+        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+        //                return false;
+
+        //            return true;
+        //        }));
+
+        //    // CancellationRequests => CancelRequest
+        //    CreateMap<CancellationRequestsDto, RequestCancelation>()
+        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+        //        .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+        //        .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
+        //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+        //        {
+        //            // Ignore null objects & empty string properties
+        //            if (property == null)
+        //                return false;
+        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+        //                return false;
+        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+        //                return false;
+        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+        //                return false;
+
+        //            return true;
+        //        }));
+        //    CreateMap<RequestCancelation, CancellationRequestsDto>()
+        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+        //        .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+        //        .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
+        //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+        //        {
+        //            // Ignore null objects & empty string properties
+        //            if (property == null)
+        //                return false;
+        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+        //                return false;
+        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+        //                return false;
+        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+        //                return false;
+
+        //            return true;
+        //        }));
+        //}
     }
 }

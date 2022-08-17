@@ -43,7 +43,10 @@
 		[JsonProperty("PickedUPOS")]
 		public string PickedUpos { get; set; }
 
-		[JsonProperty("BonusNo")]
+        [JsonProperty("Qty")]
+        public string Qty { get; set; }
+
+        [JsonProperty("BonusNo")]
 		public string BonusNo { get; set; }
 
 		[JsonProperty("PickTime")]
@@ -57,7 +60,8 @@
 				   OrderLineReference == dto.OrderLineReference &&
 				   ToteId == dto.ToteId &&
 				   PickedUpos == dto.PickedUpos &&
-				   BonusNo == dto.BonusNo &&
+                   Qty == dto.Qty &&
+                   BonusNo == dto.BonusNo &&
 				   PickTime == dto.PickTime;
 		}
 	}

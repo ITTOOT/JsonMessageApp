@@ -1,9 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using AutoMapper;
 
 using JsonMessageApi.Context;
 using JsonMessageApi.Models;
+
+using JsonMessageApp.Config;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,54 +20,56 @@ namespace JsonMessageApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class NS_ArticleCreateController : BaseController<MessageDto, MessageDto>
+    public class NS_ArticleCreateController : FromController<MessageDto, MessageDto>
     {
-        public NS_ArticleCreateController(DataContext context, IMapper mapper) : base(context, mapper)
+        public NS_ArticleCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
         }
     }
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderCreateController : BaseController<MessageDto, MessageDto>
+    public class NS_OrderCreateController : FromController<MessageDto, MessageDto>
     {
-        public NS_OrderCreateController(DataContext context, IMapper mapper) : base(context, mapper)
+        public NS_OrderCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
+        {
+
+            //IncomingGoodsPosition
+        }
+    }
+
+    [Route("[controller]")]
+    [ApiController]
+    public class NS_OrderUpdateController : FromController<MessageDto, MessageDto>
+    {
+        public NS_OrderUpdateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
         }
     }
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderUpdateController : BaseController<MessageDto, MessageDto>
+    public class NS_OrderCancelController : FromController<MessageDto, MessageDto>
     {
-        public NS_OrderUpdateController(DataContext context, IMapper mapper) : base(context, mapper)
+        public NS_OrderCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
         }
     }
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderCancelController : BaseController<MessageDto, MessageDto>
+    public class NS_OrderLineCancelController : FromController<MessageDto, MessageDto>
     {
-        public NS_OrderCancelController(DataContext context, IMapper mapper) : base(context, mapper)
+        public NS_OrderLineCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
         }
     }
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderLineCancelController : BaseController<MessageDto, MessageDto>
+    public class NS_ValidationErrorController : FromController<MessageDto, MessageDto>
     {
-        public NS_OrderLineCancelController(DataContext context, IMapper mapper) : base(context, mapper)
-        {
-        }
-    }
-
-    [Route("[controller]")]
-    [ApiController]
-    public class NS_ValidationErrorController : BaseController<MessageDto, MessageDto>
-    {
-        public NS_ValidationErrorController(DataContext context, IMapper mapper) : base(context, mapper)
+        public NS_ValidationErrorController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
         }
     }

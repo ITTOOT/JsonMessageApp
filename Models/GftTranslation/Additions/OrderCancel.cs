@@ -12,7 +12,7 @@ namespace JsonMessageApi.Models
 
     [Serializable()]
 	[JsonObject(MemberSerialization.OptIn)]
-	public partial class OrderStart : HostMessage // , IOrderStart
+	public partial class OrderCancel : HostMessage // , IOrderStart
     {
         public static Func<IHostMessage, bool> OnHandle;
 
@@ -27,27 +27,13 @@ namespace JsonMessageApi.Models
                 return OnHandle.Invoke(this);
             }
         }
-
-        /// <summary>
-        /// MovementType 
-        /// </summary>
-        [XmlAttribute]
-		[JsonProperty]
-		public Constants.MovementType? MovementType { get; set; }
-
+        
 		/// <summary>
 		/// OutgoingGoodsNo 
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
 		public string OutgoingGoodsNo { get; set; }
-
-		/// <summary>
-		/// Workstation 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string Workstation { get; set; }
-
+        
 	}
 }

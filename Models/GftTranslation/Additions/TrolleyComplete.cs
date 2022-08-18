@@ -11,7 +11,7 @@ namespace JsonMessageApi.Models
 
     [Serializable()]
 	[JsonObject(MemberSerialization.OptIn)]
-	public partial class TubAssignment : HostMessage, ITubAssignment
+	public partial class TrolleyComplete : HostMessage // , ITubAssignment
 	{
         public static Func<IHostMessage, bool> OnHandle;
 
@@ -32,35 +32,14 @@ namespace JsonMessageApi.Models
         /// </summary>
         [XmlAttribute]
 		[JsonProperty]
-		public string StorageArea { get; set; }
+		public long TrolleyId { get; set; }
 
 		/// <summary>
 		/// TubNo 
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public string TubNo { get; set; }
-
-		/// <summary>
-		/// TrolleyNo 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string TrolleyNo { get; set; }
-
-		/// <summary>
-		/// Destination 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string Destination { get; set; }
-
-		/// <summary>
-		/// BatchId 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string BatchId { get; set; }
+		public string ToteId { get; set; }
 
 	}
 }

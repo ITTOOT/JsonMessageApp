@@ -11,7 +11,7 @@ namespace JsonMessageApi.Models
 
     [Serializable()]
 	[JsonObject(MemberSerialization.OptIn)]
-	public partial class PickCancelation : HostMessage, IPickCancelation
+	public partial class ValidationErrorFromErp : HostMessage // , IPickCancelation
 	{
         public static Func<IHostMessage, bool> OnHandle;
 
@@ -27,47 +27,12 @@ namespace JsonMessageApi.Models
             }
         }
 
-        /// <summary>
-        /// BatchId 
-        /// </summary>
-        [XmlAttribute]
-		[JsonProperty]
-		public string BatchId { get; set; }
-
 		/// <summary>
 		/// OutgoingGoodsNo 
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
 		public string OutgoingGoodsNo { get; set; }
-
-		/// <summary>
-		/// PositionNo 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string PositionNo { get; set; }
-
-		/// <summary>
-		/// ArticleNo 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string ArticleNo { get; set; }
-
-		/// <summary>
-		/// CancelQty 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public decimal CancelQty { get; set; }
-
-		/// <summary>
-		/// ReasonCode 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string ReasonCode { get; set; }
-
+        
 	}
 }

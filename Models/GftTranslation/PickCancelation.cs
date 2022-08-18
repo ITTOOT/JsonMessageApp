@@ -69,5 +69,12 @@ namespace JsonMessageApi.Models
 		[JsonProperty]
 		public string ReasonCode { get; set; }
 
-	}
+        /// <summary>
+        /// ReasonCode 
+        /// </summary>
+        [XmlAttribute]
+        [JsonProperty]
+        public string Username { get; set; }
+
+    }
 }

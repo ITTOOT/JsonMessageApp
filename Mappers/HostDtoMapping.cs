@@ -131,10 +131,10 @@ namespace JsonMessageApi.Mappers
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.Description, opt => opt.MapFrom(src => src.Description))
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.BonusActivity, opt => opt.MapFrom(src => src.UserActivity)) // Add
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.HotZoneClassification, opt => opt.MapFrom(src => src.AbcArea))
-                .ForPath(dest => PackagingUnit.Pcs, opt => opt.MapFrom(src => src.PackagingUnit)) // Default to be entered here = pcs
-                .ForPath(dest => false, opt => opt.MapFrom(src => src.IsLotNoRequired)) // Default to be entered here = false
-                .ForPath(dest => DefaultValues.DefaultClient, opt => opt.MapFrom(src => src.Client)) // Default to be entered here = defaultClient
-                .ForPath(dest => DefaultValues.DefaultVariant, opt => opt.MapFrom(src => src.Variant)) // Default to be entered here = defaultVariant
+                //.ForPath(dest => PackagingUnit.Pcs, opt => opt.MapFrom(src => src.PackagingUnit)) // Default to be entered here = pcs
+                //.ForPath(dest => false, opt => opt.MapFrom(src => src.IsLotNoRequired)) // Default to be entered here = false
+                //.ForPath(dest => DefaultValues.DefaultClient, opt => opt.MapFrom(src => src.Client)) // Default to be entered here = defaultClient
+                //.ForPath(dest => DefaultValues.DefaultVariant, opt => opt.MapFrom(src => src.Variant)) // Default to be entered here = defaultVariant
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription1))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription2))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Subdescription3))
@@ -242,886 +242,994 @@ namespace JsonMessageApi.Mappers
                     return true;
                 }));
 
-            ////// NS_OrderUpdate => MAKE NEW MODEL
-            ////CreateMap<MessageDto, ????>()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            ////    // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            ////    // Request
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.OrderReference))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PickByTime))
-            ////    
 
-            ////CreateMap<????, MessageDto >()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            ////    // Request
-            ////    
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+            
 
-            ////// NS_OrderCancel => MAKE NEW MODEL
-            ////CreateMap < MessageDto, ????> ()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            ////    //.ForPath(fromErp => dest.????, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderCancel))
-            ////    // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            ////    // Request
-            ////    .ForPath(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderReference))
-            ////    
-            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            ////CreateMap <????, MessageDto > ()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            ////    // Request
-            ////    //.ForPath(NS_OrderCancel => NS_OrderCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+            //// NS_OrderUpdate => MAKE NEW MODEL
+            CreateMap<MessageDto, OrderUpdate>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.NS_OrderUpdate.OrderReference))
+                .ForPath(dest => dest.PickByTime, opt => opt.MapFrom(src => src.Request.NS_OrderUpdate.PickByTime))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            ////// NS_OrderLineCancel => MAKE NEW MODEL
-            ////CreateMap<MessageDto, ????>()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            ////    // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            ////    // Request
-            ////    //.ForPath(fromErp => dest.RecordType, opts => opts.MapFrom((src, dest, srcMember) => dest.RecordType = RecordType.NS_OrderLineCancel))
-            ////    //.ForPath(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderReference))
-            ////    //.ForPath(dest => dest.recordType, opt => opt.MapFrom(src => src.OrderLineCancel))
-            ////    //.ForPath(fromErp => dest.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = String.Join(',', src.Relation)))
-            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            ////CreateMap<????, MessageDto>()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            ////    // Request
-            ////    //.ForPath(NS_OrderLineCancel => NS_OrderLineCancel.Relation, opts => opts.MapFrom((src, dest, srcMember) => dest.Relation = src.Relation.Split(',')))
-            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                    return true;
+                }));
+            CreateMap <OrderUpdate, MessageDto >()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                //Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.NS_OrderUpdate.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+                .ForPath(dest => dest.Request.NS_OrderUpdate.PickByTime, opt => opt.MapFrom(src => src.PickByTime))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            ////// NS_ValidationError => MAKE NEW MODEL
-            ////CreateMap<MessageDto, ????>()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            ////    // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            ////    // Request
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MessageType))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MessageVersion))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Created))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.UniqueKey))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SenderId))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationId))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ResendCounter))
-            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-            ////CreateMap<????, MessageDto>()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            ////    // Request
-            ////    .ForAllOtherMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                    return true;
+                }));
 
-            ////--------------------------------------------------------------------------------------------
-            //// GS = To ERP
-            ////--------------------------------------------------------------------------------------------
+            //// NS_OrderCancel => MAKE NEW MODEL
+            CreateMap < MessageDto, OrderCancel> ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.NS_OrderCancel.OrderReference))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            //// GS_StockAdjustment => QuantityCorrection
-            //CreateMap<MessageDto, QuantityCorrection>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Sku))
-            //    .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.WarehouseCode))
-            //    .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity)) // +/-
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentDate))
-            //    .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Bdcid))
-            //    .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Upos))
-            //    .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason))
-            //    //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????)) // Ignore
-            //    //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????)) // Expected amount
-            //    .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.BonusNo))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
+            CreateMap <OrderCancel, MessageDto > ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.NS_OrderCancel.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap<QuantityCorrection, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty)) // +/-
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentDate, opt => opt.MapFrom(src => src.Created))
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Bdcid, opt => opt.MapFrom(src => src.Barcode))
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.Upos, opt => opt.MapFrom(src => src.Barcode))
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => src.ReasonCode))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType)) // Ignore
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty)) // Expected amount
-            //    .ForPath(dest => dest.Request.GS_StockAdjustment.BonusNo, opt => opt.MapFrom(src => src.Username))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
 
-            //        return true;
-            //    }));
+            // NS_OrderLineCancel => MAKE NEW MODEL
+            CreateMap < MessageDto, OrderLineCancel> ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.OutgoingGoodsPositionNo, opt => opt.MapFrom(src => src.Request.NS_OrderLineCancel.OrderReference))
+                .ForPath(dest => dest.OrderLineCancels, opt => opt.MapFrom(src => src.Request.NS_OrderLineCancel.OrderLineCancel))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            //// GS_InventorySnapshot => StockReport
-            //CreateMap<MessageDto, StockReport>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Sku))
-            //    .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.WarehouseCode))
-            //    .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Quantity))
-            //    .ForPath(dest => dest.LastIncoming, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastInductDate))
-            //    .ForPath(dest => dest.LastOutgoing, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastRetrievedDate))
-            //    .ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
+            CreateMap <OrderLineCancel, MessageDto > ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.NS_OrderLineCancel.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsPositionNo))
+                .ForPath(dest => dest.Request.NS_OrderLineCancel.OrderLineCancel, opt => opt.MapFrom(src => src.OrderLineCancels))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap<StockReport, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.Quantity, opt => opt.MapFrom(src => src.ActualQty))
-            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.LastInductDate, opt => opt.MapFrom(src => src.LastIncoming))
-            //    .ForPath(dest => dest.Request.GS_InventorySnapshot.LastRetrievedDate, opt => opt.MapFrom(src => src.LastOutgoing))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
 
-            //        return true;
-            //    }));
+            // NS_ValidationError => MAKE NEW MODEL
+            CreateMap < MessageDto, ValidationErrorFromErp> ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                //Request
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.NS_ValidationError.OrderReference))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            //// GS_PickConfirmation => OutgoingGoodsPositionConfirmation
-            //CreateMap<MessageDto, OutgoingGoodsPositionConfirmation>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderReference))
-            //    .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineReference))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineNo)) // What is this?
-            //    //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
-            //    .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.ToteId))
-            //    .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickedUpos))
-            //    .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.BonusNo))
-            //    .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickTime))
-            //    //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-            //    .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.Qty))
-            //    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.DestinationRackNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.DestinationRackPosition, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.Name, opt => opt.MapFrom(src => src.????))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
+            CreateMap <ValidationErrorFromErp, MessageDto > ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.NS_ValidationError.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+                    if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap<OutgoingGoodsPositionConfirmation, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.Request.GS_PickConfirmation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-            //    .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => src.PositionNo)) // What is this?
-            //    //.ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.Request.GS_PickConfirmation.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-            //    .ForPath(dest => dest.Request.GS_PickConfirmation.ToteId, opt => opt.MapFrom(src => src.TubNo))
-            //    .ForPath(dest => dest.Request.GS_PickConfirmation.PickedUpos, opt => opt.MapFrom(src => src.Barcode))
-            //    .ForPath(dest => dest.Request.GS_PickConfirmation.BonusNo, opt => opt.MapFrom(src => src.Username))
-            //    .ForPath(dest => dest.Request.GS_PickConfirmation.PickTime, opt => opt.MapFrom(src => src.Created))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-            //    .ForPath(dest => dest.Request.GS_PickConfirmation.Qty, opt => opt.MapFrom(src => src.ActualQty))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackPosition))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Username))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Name))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
 
-            //        return true;
-            //    }));
+            //--------------------------------------------------------------------------------------------
+            // GS = To ERP
+            //--------------------------------------------------------------------------------------------
 
-            //// GS_ToteAssignment => TubAssignment
-            //CreateMap<MessageDto, TubAssignment>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.ToteId))
-            //    .ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.TrolleyId))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderReference)) // Do Next need this?
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderLineNo)) // Do Next need this?
-            //    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
-            //    .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationPure)) // TBC - For batch end tails
-            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????)) // Do Next need this?
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+            // GS_StockAdjustment => QuantityCorrection
+            CreateMap<MessageDto, QuantityCorrection>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Sku))
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.WarehouseCode))
+                .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity)) // +/-
+                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentDate))
+                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Bdcid))
+                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Upos))
+                .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason))
+                //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????)) // Ignore
+                //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????)) // Expected amount
+                .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.BonusNo))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap<TubAssignment, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.Request.GS_ToteAssignment.ToteId, opt => opt.MapFrom(src => src.TubNo))
-            //    .ForPath(dest => dest.Request.GS_ToteAssignment.TrolleyId, opt => opt.MapFrom(src => src.TrolleyNo))
-            //    //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderReference, opt => opt.MapFrom(src => src.????)) // Do Next need this?
-            //    //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderLineNo, opt => opt.MapFrom(src => src.????)) // Do Next need this?
-            //    //.ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.Destination))
-            //    .ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.StorageArea))
-            //    //.ForPath(dest => dest.DestinationPure, opt => opt.MapFrom(src => src.)) // TBC - For batch end tails
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId)) // Do Next need this?
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
+            CreateMap<QuantityCorrection, MessageDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.GS_StockAdjustment.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty)) // +/-
+                .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentDate, opt => opt.MapFrom(src => src.Created))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.Bdcid, opt => opt.MapFrom(src => src.Barcode))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.Upos, opt => opt.MapFrom(src => src.Barcode))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => src.ReasonCode))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType)) // Ignore
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty)) // Expected amount
+                .ForPath(dest => dest.Request.GS_StockAdjustment.BonusNo, opt => opt.MapFrom(src => src.Username))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
+                    return true;
+                }));
 
-            ////// GS_TrolleyComplete => MAKE NEW MODEL
-            ////CreateMap < MessageDto, ????> ()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            ////    // Request
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyId))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Totes))
-            ////    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-            ////    //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
-            ////    //.ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.????))
-            ////    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
-            ////    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-            ////    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            ////    {
-            ////        // Ignore null objects & empty string properties
-            ////        if (property == null)
-            ////            return false;
-            ////        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            ////            return false;
-            ////        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            ////            return false;
-            ////        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            ////            return false;
+            // GS_InventorySnapshot => StockReport
+            CreateMap<MessageDto, StockReport>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Sku))
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.WarehouseCode))
+                .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.Quantity))
+                .ForPath(dest => dest.LastIncoming, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastInductDate))
+                .ForPath(dest => dest.LastOutgoing, opt => opt.MapFrom(src => src.Request.GS_InventorySnapshot.LastRetrievedDate))
+                .ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            ////        return true;
-            ////    }));
-            ////CreateMap <????, MessageDto > ()
-            ////    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            // Header - Next header information NOT required for StoreWare
-            //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            ////    // Request
-            ////    //.ForPath(dest => dest.TrolleyId, opt => opt.MapFrom(src => src.????))
-            ////    //.ForPath(dest => dest.Totes, opt => opt.MapFrom(src => src.????))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TubNo))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
-            ////    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-            ////    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            ////    {
-            ////        // Ignore null objects & empty string properties
-            ////        if (property == null)
-            ////            return false;
-            ////        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            ////            return false;
-            ////        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            ////            return false;
-            ////        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            ////            return false;
+                    return true;
+                }));
+            CreateMap<StockReport, MessageDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.GS_InventorySnapshot.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+                .ForPath(dest => dest.Request.GS_InventorySnapshot.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
+                .ForPath(dest => dest.Request.GS_InventorySnapshot.Quantity, opt => opt.MapFrom(src => src.ActualQty))
+                .ForPath(dest => dest.Request.GS_InventorySnapshot.LastInductDate, opt => opt.MapFrom(src => src.LastIncoming))
+                .ForPath(dest => dest.Request.GS_InventorySnapshot.LastRetrievedDate, opt => opt.MapFrom(src => src.LastOutgoing))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            ////        return true;
-            ////    }));
+                    return true;
+                }));
 
-            //// GS_PickCancellation => PickCancelation
-            //CreateMap<MessageDto, PickCancelation>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.OrderReference))
-            //    .ForPath(dest => dest.UserName, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.BonusNo)) // Add username
-            //    .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.ReasonCode))
-            //    .ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.Cancellations))
-            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+            // GS_PickConfirmation => OutgoingGoodsPositionConfirmation
+            CreateMap<MessageDto, OutgoingGoodsPositionConfirmation>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderReference))
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineReference))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineNo)) // What is this?
+                //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
+                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.ToteId))
+                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickedUpos))
+                .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.BonusNo))
+                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickTime))
+                //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
+                .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.Qty))
+                //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.DestinationRackNo, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.DestinationRackPosition, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.Name, opt => opt.MapFrom(src => src.????))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap<PickCancelation, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.Request.GS_PickCancellation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-            //    .ForPath(dest => dest.Request.GS_PickCancellation.BonusNo, opt => opt.MapFrom(src => src.UserName)) // Add username
-            //    .ForPath(dest => dest.Request.GS_PickCancellation.ReasonCode, opt => opt.MapFrom(src => src.ReasonCode))
-            //    .ForPath(dest => dest.Request.GS_PickCancellation.Cancellations, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PositionNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ArticleNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.CancelQty))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
+            CreateMap<OutgoingGoodsPositionConfirmation, MessageDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => src.PositionNo)) // What is this?
+                                                                                                                                 //.ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineNo, opt => opt.MapFrom(src => src.????))
+                                                                                                                                 //.ForPath(dest => dest.Request.GS_PickConfirmation.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+                .ForPath(dest => dest.Request.GS_PickConfirmation.ToteId, opt => opt.MapFrom(src => src.TubNo))
+                .ForPath(dest => dest.Request.GS_PickConfirmation.PickedUpos, opt => opt.MapFrom(src => src.Barcode))
+                .ForPath(dest => dest.Request.GS_PickConfirmation.BonusNo, opt => opt.MapFrom(src => src.Username))
+                .ForPath(dest => dest.Request.GS_PickConfirmation.PickTime, opt => opt.MapFrom(src => src.Created))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
+                .ForPath(dest => dest.Request.GS_PickConfirmation.Qty, opt => opt.MapFrom(src => src.ActualQty))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationRackPosition))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Username))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Name))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
+                    return true;
+                }));
 
-            //// GS_PickCancellationRequest => CancelRequest
-            //CreateMap<MessageDto, CancelRequest>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.OrderReference)) // Add
-            //    .ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.BonusNo)) // Add
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.CancellationRequestsDto))
-            //    .ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????)) // Required in Next system
-            //    //.ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.????)) // Required in Next system CancellationRequestsDtoCancellationRequestsDto.OrderLineNo
-            //    //.ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.????))// Required in Next system (should be in each cancellation) CancellationRequestsDto.OrderLineReference
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+            // GS_ToteAssignment => TubAssignment
+            CreateMap<MessageDto, TubAssignment>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.ToteId))
+                .ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.TrolleyId))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderReference)) // Do Next need this?
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderLineNo)) // Do Next need this?
+                //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationPure)) // TBC - For batch end tails
+                //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????)) // Do Next need this?
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap<CancelRequest, MessageDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            //    // Request
-            //    .ForPath(dest => dest.Request.GS_PickCancellationRequest.OrderReference, opt => opt.MapFrom(src => src.????)) // Add
-            //    .ForPath(dest => dest.Request.GS_PickCancellationRequest.BonusNo, opt => opt.MapFrom(src => src.????)) // Add
-            //    //.ForPath(dest => dest.Request.GS_PickCancellationRequest.CancellationRequestsDto, opt => opt.MapFrom(src => src.????))
-            //    .ForPath(dest => dest.Request.GS_PickCancellationRequest.BatchReference, opt => opt.MapFrom(src => src.BatchId)) // Required in Next system
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.OutgoingGoodsNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.PositionNo))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
+            CreateMap<TubAssignment, MessageDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.GS_ToteAssignment.ToteId, opt => opt.MapFrom(src => src.TubNo))
+                .ForPath(dest => dest.Request.GS_ToteAssignment.TrolleyId, opt => opt.MapFrom(src => src.TrolleyNo))
+                //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderReference, opt => opt.MapFrom(src => src.????)) // Do Next need this?
+                //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderLineNo, opt => opt.MapFrom(src => src.????)) // Do Next need this?
+                //.ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.Destination))
+                .ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.StorageArea))
+                //.ForPath(dest => dest.DestinationPure, opt => opt.MapFrom(src => src.)) // TBC - For batch end tails
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId)) // Do Next need this?
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
+                    return true;
+                }));
 
-            //// GS_Event => MAKE NEW MODEL
-            //CreateMap < MessageDto, ????> ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
-            //    //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
-            //    //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
-            //    //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
-            //    // Request
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BonusNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.EventTime))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BonusActivity))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.WarehouseCode))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+            // GS_TrolleyComplete => MAKE NEW MODEL
+            CreateMap < MessageDto, TrolleyComplete> ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                //Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.TrolleyId, opt => opt.MapFrom(src => src.Request.GS_TrolleyComplete.TrolleyId))
+                .ForPath(dest => dest.ToteId, opt => opt.MapFrom(src => src.Request.GS_TrolleyComplete.Totes))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap <????, MessageDto > ()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    // Header - Next header information NOT required for StoreWare
-            //    //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
-            //    //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-            //    //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
-            //    //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
-            //    //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
-            //    //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
-            //    //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-            //    // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
-            //    // Request
-            //    //.ForPath(dest => dest.BonusNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.EventTime, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.BonusActivity, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.????))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
+            CreateMap <TrolleyComplete, MessageDto > ()
+               .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+               // Header - Next header information NOT required for StoreWare
+               //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+               //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+               //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+               //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+               //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+               //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+               // Request
+               .ForPath(dest => dest.Request.GS_TrolleyComplete.TrolleyId, opt => opt.MapFrom(src => src.TrolleyId))
+               .ForPath(dest => dest.Request.GS_TrolleyComplete.Totes, opt => opt.MapFrom(src => src.ToteId))
+               .ForAllMembers(x => x.Condition((source, destination, property) =>
+               {
+                   // Ignore null objects & empty string properties
+                   if (property == null)
+                       return false;
+                   if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                       return false;
+                   if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                       return false;
+                   if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                       return false;
 
-            //        return true;
-            //    }));
+                   return true;
+               }));
 
-            ////--------------------------------------------------------------------------------------------
-            //// List entities
-            ////--------------------------------------------------------------------------------------------
+            // GS_PickCancellation => PickCancelation
+            CreateMap<MessageDto, PickCancelation>()
+               .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+               // Header - Next header information NOT required for StoreWare
+               //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+               //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+               //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+               //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+               //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+               //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+               //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+               // Request
+               .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.OrderReference))
+               .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.BonusNo)) // Add username
+               .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.ReasonCode))
+               .ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.Cancellations))
+               //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+               //.ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.????))
+               //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
+               //.ForPath(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
+               .ForAllMembers(x => x.Condition((source, destination, property) =>
+               {
+                   // Ignore null objects & empty string properties
+                   if (property == null)
+                       return false;
+                   if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                       return false;
+                   if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                       return false;
+                   if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                       return false;
 
-            //// GS_TrolleyCompleteDto > Tote => 
-            //CreateMap <ToteDto, TubAssignment>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.ToteId))
-            //    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                   return true;
+               }));
+           CreateMap<PickCancelation, MessageDto>()
+               .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+               // Header - Next header information NOT required for StoreWare
+               //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+               //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+               //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+               //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+               //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+               //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+               // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+               // Request
+               .ForPath(dest => dest.Request.GS_PickCancellation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+               .ForPath(dest => dest.Request.GS_PickCancellation.BonusNo, opt => opt.MapFrom(src => src.Username)) // Add username
+               .ForPath(dest => dest.Request.GS_PickCancellation.ReasonCode, opt => opt.MapFrom(src => src.ReasonCode))
+               .ForPath(dest => dest.Request.GS_PickCancellation.Cancellations, opt => opt.MapFrom(src => src.????))
+               //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+               //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PositionNo))
+               //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ArticleNo))
+               //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.CancelQty))
+               .ForAllMembers(x => x.Condition((source, destination, property) =>
+               {
+                   // Ignore null objects & empty string properties
+                   if (property == null)
+                       return false;
+                   if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                       return false;
+                   if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                       return false;
+                   if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                       return false;
 
-            //        return true;
-            //    }));
-            //CreateMap <TubAssignment, ToteDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForPath(dest => dest.ToteId, opt => opt.MapFrom(src => src.TubNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                   return true;
+               }));
 
-            //        return true;
-            //    }));
+           // GS_PickCancellationRequest => CancelRequest
+           CreateMap<MessageDto, CancelRequest>()
+               .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+               // Header - Next header information NOT required for StoreWare
+               //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+               //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+               //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+               //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+               //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+               //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+               //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+               //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+               //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+               // Request
+               .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.OrderReference)) // Add
+               .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.BonusNo)) // Add
+               //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.CancellationRequestsDto))
+               .ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.Request.GS_PickCancellationRequest.BatchReference)) // Required in Next system
+               //.ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.????)) // Required in Next system CancellationRequestsDtoCancellationRequestsDto.OrderLineNo
+               //.ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.????))// Required in Next system (should be in each cancellation) CancellationRequestsDto.OrderLineReference
+               .ForAllMembers(x => x.Condition((source, destination, property) =>
+               {
+                   // Ignore null objects & empty string properties
+                   if (property == null)
+                       return false;
+                   if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                       return false;
+                   if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                       return false;
+                   if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                       return false;
 
-            //// OrderLine => IncomingGoodsPosition
-            //CreateMap<OrderLineDto, IncomingGoodsPosition>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-            //    .ForPath(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-            //    .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
-            //    //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.ExpirationDate, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.SpecialStockNo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.SpecialStockIndicator, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.FiFo, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                   return true;
+               }));
+            CreateMap<CancelRequest, MessageDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.GS_PickCancellationRequest.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo)) // Add
+                .ForPath(dest => dest.Request.GS_PickCancellationRequest.BonusNo, opt => opt.MapFrom(src => src.Username)) // Add
+                //.ForPath(dest => dest.Request.GS_PickCancellationRequest.CancellationRequestsDto, opt => opt.MapFrom(src => src.????))
+                .ForPath(dest => dest.Request.GS_PickCancellationRequest.BatchReference, opt => opt.MapFrom(src => src.BatchId)) // Required in Next system
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.OutgoingGoodsNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.PositionNo))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
 
-            //        return true;
-            //    }));
-            //CreateMap<IncomingGoodsPosition, OrderLineDto>()
-            //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-            //    .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-            //    .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
-            //    .ForPath(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-            //    //.ForPath(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ExpirationDate))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockNo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockIndicator))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.FiFo))
-            //    //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
-            //    .ForAllMembers(x => x.Condition((source, destination, property) =>
-            //    {
-            //        // Ignore null objects & empty string properties
-            //        if (property == null)
-            //            return false;
-            //        if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-            //            return false;
-            //        if (property.GetType() == typeof(int) && int.Equals(property, 0))
-            //            return false;
-            //        if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-            //            return false;
+                    return true;
+                }));
 
-            //        return true;
-            //    }));
+            // GS_Activity => MAKE NEW MODEL
+            CreateMap< MessageDto, SystemActivity> ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_Activity.BonusNo))
+                .ForPath(dest => dest.EventTime, opt => opt.MapFrom(src => src.Request.GS_Activity.EventTime))
+                .ForPath(dest => dest.UserActivity, opt => opt.MapFrom(src => src.Request.GS_Activity.BonusActivity))
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_Activity.WarehouseCode))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+            CreateMap <SystemActivity, MessageDto > ()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Request.GS_Activity.BonusNo, opt => opt.MapFrom(src => src.Username))
+                .ForPath(dest => dest.Request.GS_Activity.EventTime, opt => opt.MapFrom(src => src.EventTime))
+                .ForPath(dest => dest.Request.GS_Activity.BonusActivity, opt => opt.MapFrom(src => src.UserActivity))
+                .ForPath(dest => dest.Request.GS_Activity.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+
+            //--------------------------------------------------------------------------------------------
+            // List entities
+            //--------------------------------------------------------------------------------------------
+
+            // GS_TrolleyCompleteDto > Tote => 
+            CreateMap<ToteDto, TubAssignment>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.ToteId))
+                //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+            CreateMap<TubAssignment, ToteDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                .ForPath(dest => dest.ToteId, opt => opt.MapFrom(src => src.TubNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+
+            // OrderLine => IncomingGoodsPosition
+            CreateMap<OrderLineDto, IncomingGoodsPosition>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
+                .ForPath(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
+                //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.LotNo, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.Variant, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.ExpirationDate, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.SpecialStockNo, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.SpecialStockIndicator, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.FiFo, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+            CreateMap<IncomingGoodsPosition, OrderLineDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
+                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
+                .ForPath(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+                //.ForPath(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.LotNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Variant))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ExpirationDate))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockNo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.SpecialStockIndicator))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.FiFo))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
 
             // OrderLine => OutgoingGoodsPosition
             CreateMap<OrderLineDto, OutgoingGoodsPosition>()
@@ -1175,7 +1283,7 @@ namespace JsonMessageApi.Mappers
                     return true;
                 }));
 
-            //// OrderLineCancel => 
+            //// NS_OrderLineCancelDto > OrderLineCancel => 
             //CreateMap<OrderLineCancelDto, CancelRequest>()
             //    .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
             //    .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
@@ -1215,91 +1323,91 @@ namespace JsonMessageApi.Mappers
             //        return true;
             //    }));
 
-        //    // GS_PickCancellationDto > CancellationDto => PickCancelation
-        //    CreateMap<CancellationDto, PickCancelation>()
-        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-        //        .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference)) // Add
-        //        .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo)) // Add
-        //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-        //        //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
-        //        //.ForPath(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
-        //        //.ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.????))
-        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
-        //        {
-        //            // Ignore null objects & empty string properties
-        //            if (property == null)
-        //                return false;
-        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-        //                return false;
-        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
-        //                return false;
-        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-        //                return false;
+            //    // GS_PickCancellationDto > CancellationDto => PickCancelation
+            //    CreateMap<CancellationDto, PickCancelation>()
+            //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //        .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference)) // Add
+            //        .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo)) // Add
+            //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //        //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
+            //        //.ForPath(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
+            //        //.ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.????))
+            //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //        {
+            //            // Ignore null objects & empty string properties
+            //            if (property == null)
+            //                return false;
+            //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //                return false;
+            //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //                return false;
+            //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //                return false;
 
-        //            return true;
-        //        }));
-        //    CreateMap<PickCancelation, CancellationDto>()
-        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-        //        .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo)) // Add
-        //        .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo)) // Add
-        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
-        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ArticleNo))
-        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.CancelQty))
-        //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ReasonCode))
-        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
-        //        {
-        //            // Ignore null objects & empty string properties
-        //            if (property == null)
-        //                return false;
-        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-        //                return false;
-        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
-        //                return false;
-        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-        //                return false;
+            //            return true;
+            //        }));
+            //    CreateMap<PickCancelation, CancellationDto>()
+            //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //        .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo)) // Add
+            //        .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo)) // Add
+            //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
+            //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ArticleNo))
+            //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.CancelQty))
+            //        //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ReasonCode))
+            //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //        {
+            //            // Ignore null objects & empty string properties
+            //            if (property == null)
+            //                return false;
+            //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //                return false;
+            //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //                return false;
+            //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //                return false;
 
-        //            return true;
-        //        }));
+            //            return true;
+            //        }));
 
-        //    // CancellationRequests => CancelRequest
-        //    CreateMap<CancellationRequestsDto, RequestCancelation>()
-        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-        //        .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-        //        .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-        //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
-        //        {
-        //            // Ignore null objects & empty string properties
-        //            if (property == null)
-        //                return false;
-        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-        //                return false;
-        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
-        //                return false;
-        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-        //                return false;
+            //    // GS_PickCancellationRequestDto > CancellationRequests => CancelRequest
+            //    CreateMap<CancellationRequestsDto, RequestCancelation>()
+            //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //        .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+            //        .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
+            //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //        {
+            //            // Ignore null objects & empty string properties
+            //            if (property == null)
+            //                return false;
+            //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //                return false;
+            //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //                return false;
+            //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //                return false;
 
-        //            return true;
-        //        }));
-        //    CreateMap<RequestCancelation, CancellationRequestsDto>()
-        //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-        //        .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-        //        .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-        //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
-        //        .ForAllMembers(x => x.Condition((source, destination, property) =>
-        //        {
-        //            // Ignore null objects & empty string properties
-        //            if (property == null)
-        //                return false;
-        //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
-        //                return false;
-        //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
-        //                return false;
-        //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
-        //                return false;
+            //            return true;
+            //        }));
+            //    CreateMap<RequestCancelation, CancellationRequestsDto>()
+            //        .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+            //        .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+            //        .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
+            //        //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
+            //        .ForAllMembers(x => x.Condition((source, destination, property) =>
+            //        {
+            //            // Ignore null objects & empty string properties
+            //            if (property == null)
+            //                return false;
+            //            if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+            //                return false;
+            //            if (property.GetType() == typeof(int) && int.Equals(property, 0))
+            //                return false;
+            //            if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+            //                return false;
 
-        //            return true;
-        //        }));
-        //}
+            //            return true;
+            //        }));
+        }
     }
 }

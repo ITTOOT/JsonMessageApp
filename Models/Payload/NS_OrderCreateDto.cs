@@ -49,7 +49,7 @@
 		[JsonProperty("BatchEndAllowed")]
 		public string BatchEndAllowed { get; set; }
 
-        [JsonProperty("BatchEndAllowed")]
+        [JsonProperty("BatchPriority")]
         public string BatchPriority { get; set; } // Added
 
         internal string _OrderLines { get; set; }

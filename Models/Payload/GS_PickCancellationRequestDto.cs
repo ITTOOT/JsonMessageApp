@@ -33,6 +33,9 @@
 
 		[JsonProperty("BonusNo")]
 		public string BonusNo { get; set; }
+        
+        [JsonProperty("BatchReference")]
+        public string BatchReference { get; set; }
 
         internal string _CancellationRequests { get; set; }
 

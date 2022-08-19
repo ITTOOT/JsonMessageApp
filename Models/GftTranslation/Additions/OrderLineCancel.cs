@@ -41,5 +41,12 @@ namespace JsonMessageApi.Models
 		[JsonProperty]
 		public string OutgoingGoodsPositionNo { get; set; }
 
-	}
+        /// <summary>
+		/// PositionNo 
+		/// </summary>
+		[XmlElement("OrderLineCancel")]
+        [JsonProperty]
+        public List<OrderLineCancelPosition> Positions { get; set; }
+
+    }
 }

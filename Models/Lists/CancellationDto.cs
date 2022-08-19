@@ -22,11 +22,15 @@
 		[JsonProperty("OrderLineNo")]
 		public long OrderLineNo { get; set; }
 
-		public override bool Equals(object obj)
+        [JsonProperty("BatchReference")]
+        public string BatchReference { get; set; }
+
+        public override bool Equals(object obj)
 		{
 			return obj is CancellationDto dto &&
 				   OrderLineReference == dto.OrderLineReference &&
-				   OrderLineNo == dto.OrderLineNo;
+				   OrderLineNo == dto.OrderLineNo &&
+                   BatchReference == dto.BatchReference;
 		}
 	}
 }

@@ -47,5 +47,19 @@ namespace JsonMessageApi.Models
 		[JsonProperty]
 		public string PositionNo { get; set; }
 
-	}
+        /// <summary>
+        /// PositionNo 
+        /// </summary>
+        [XmlAttribute]
+        [JsonProperty]
+        public string Username { get; set; }
+
+        /// <summary>
+        /// PositionNo 
+        /// </summary>
+        [XmlAttribute("CancelRequestPosition")]
+        [JsonProperty]
+        public List<CancelRequestPosition> CancelRequestPositions { get; set; }
+
+    }
 }

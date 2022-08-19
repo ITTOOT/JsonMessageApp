@@ -11,7 +11,7 @@ namespace JsonMessageApi.Models
 
     [Serializable()]
 	[JsonObject(MemberSerialization.OptIn)]
-	public partial class PickCancelation : HostMessage, IPickCancelation
+	public partial class OrderLineCancelPosition : HostMessage, IOutgoingGoodsPosition
 	{
         public static Func<IHostMessage, bool> OnHandle;
 
@@ -28,60 +28,61 @@ namespace JsonMessageApi.Models
         }
 
         /// <summary>
-        /// BatchId 
+        /// OutgoingGoodsNo 
+        /// Warenausgangsnummer
         /// </summary>
         [XmlAttribute]
 		[JsonProperty]
-		public string BatchId { get; set; }
-
-		/// <summary>
-		/// OutgoingGoodsNo 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
 		public string OutgoingGoodsNo { get; set; }
-
 		/// <summary>
 		/// PositionNo 
+		/// Position des übermittelten Warenein- oder ausgangs
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
 		public string PositionNo { get; set; }
-
+		/// <summary>
+		/// MovementType 
+		/// Art der Bewegung
+		/// </summary>
+		[XmlAttribute]
+		[JsonProperty]
+		public Constants.MovementType? MovementType { get; set; }
 		/// <summary>
 		/// ArticleNo 
+		/// Artikelnummer
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
 		public string ArticleNo { get; set; }
-
 		/// <summary>
-		/// CancelQty 
+		/// LotNo 
+		/// Charge
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public decimal CancelQty { get; set; }
-
+		public string LotNo { get; set; }
 		/// <summary>
-		/// ReasonCode 
+		/// TargetQty 
+		/// Menge
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public string ReasonCode { get; set; }
+		public decimal? TargetQty { get; set; }
+		/// <summary>
+		/// Client 
+		/// Der Besitzer eines Bestandes oder der eines Artikels
+		/// </summary>
+		[XmlAttribute]
+		[JsonProperty]
+		public string Client { get; set; }
+		/// <summary>
+		/// Variant 
+		/// Variante des Artikels 
+		/// </summary>
+		[XmlAttribute]
+		[JsonProperty]
+		public string Variant { get; set; }
 
-        /// <summary>
-        /// ReasonCode 
-        /// </summary>
-        [XmlAttribute]
-        [JsonProperty]
-        public string Username { get; set; }
-
-        /// <summary>
-        /// OutgoingGoodsPositions
-        /// </summary>
-        [XmlElement("PickCancellationPosition")]
-        [JsonProperty]
-        public List<PickCancellationPosition> Positions { get; set; }
-
-    }
+	}
 }

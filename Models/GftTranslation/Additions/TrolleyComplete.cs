@@ -41,5 +41,12 @@ namespace JsonMessageApi.Models
 		[JsonProperty]
 		public string ToteId { get; set; }
 
-	}
+        /// <summary>
+		/// OutgoingGoodsPositions
+		/// </summary>
+		[XmlElement("TubPosition")]
+        [JsonProperty]
+        public List<TubPosition> TubPositions { get; set; }
+
+    }
 }

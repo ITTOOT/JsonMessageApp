@@ -117,6 +117,7 @@ namespace JsonMessageApi.Models
 		[XmlAttribute]
 		[JsonProperty]
 		public string OrderType { get; set; }
+
 		/// <summary>
 		/// OutgoingGoodsPositions
 		/// </summary>

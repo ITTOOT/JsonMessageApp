@@ -32,33 +32,33 @@ namespace JsonMessageApi.Models
         /// </summary>
         [XmlAttribute]
 		[JsonProperty]
-		public string StorageArea { get; set; }
+		public string StorageArea { get; set; } // WAS string NEW long?
 
-		/// <summary>
-		/// TubNo 
-		/// </summary>
-		[XmlAttribute]
+        /// <summary>
+        /// TubNo 
+        /// </summary>
+        [XmlAttribute]
 		[JsonProperty]
-		public string TubNo { get; set; }
+		public string TubNo { get; set; } // WAS string NEW long?
 
-		/// <summary>
-		/// TrolleyNo 
-		/// </summary>
-		[XmlAttribute]
+        /// <summary>
+        /// TrolleyNo 
+        /// </summary>
+        [XmlAttribute]
 		[JsonProperty]
-		public string TrolleyNo { get; set; }
+		public string TrolleyNo { get; set; } // WAS string NEW long?
 
-		/// <summary>
-		/// Destination 
-		/// </summary>
-		[XmlAttribute]
+        /// <summary>
+        /// Destination 
+        /// </summary>
+        [XmlAttribute]
 		[JsonProperty]
 		public string Destination { get; set; }
 
-		/// <summary>
-		/// BatchId 
-		/// </summary>
-		[XmlAttribute]
+        /// <summary>
+        /// BatchId 
+        /// </summary>
+        [XmlAttribute]
 		[JsonProperty]
 		public string BatchId { get; set; }
 

@@ -45,6 +45,7 @@ namespace JsonMessageApi
                     options.JsonSerializerOptions.IgnoreNullValues = true;
                     options.JsonSerializerOptions.WriteIndented = true;
                 });
+                
 
             // Auto mapper
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());

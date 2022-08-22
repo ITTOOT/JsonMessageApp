@@ -116,7 +116,7 @@ namespace JsonMessageApi.Models
         /// </summary>
         [XmlAttribute]
         [JsonProperty]
-        public string UserActivity { get; set; } // Added
+        public string UserActivity { get; set; } // Added long?
 
-    }
+}
 }

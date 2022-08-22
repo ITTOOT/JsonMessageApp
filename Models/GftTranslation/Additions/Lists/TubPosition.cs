@@ -39,12 +39,12 @@ namespace JsonMessageApi.Models
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public string TubNo { get; set; }
+		public string TubNo { get; set; } // WAS string NEW long?
 
-		/// <summary>
-		/// TrolleyNo 
-		/// </summary>
-		[XmlAttribute]
+        /// <summary>
+        /// TrolleyNo 
+        /// </summary>
+        [XmlAttribute]
 		[JsonProperty]
 		public string TrolleyNo { get; set; }
 

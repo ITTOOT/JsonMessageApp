@@ -85,7 +85,7 @@ namespace JsonMessageApi.Mappers
                 .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.Sku))
                 .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.WarehouseCode))
                 .ForPath(dest => dest.Description, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.Description))
-                .ForPath(dest => dest.UserActivity, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.BonusActivity)) // Add
+                .ForPath(dest => dest.UserActivity, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.BonusActivity.ToString())) // Add
                 .ForPath(dest => dest.AbcArea, opt => opt.MapFrom(src => src.Request.Ns_ArticleCreate.HotZoneClassification))
                 .ForPath(dest => dest.PackagingUnit, opt => opt.MapFrom(src => PackagingUnit.Pcs)) // Default to be entered here = pcs
                 .ForPath(dest => dest.IsLotNoRequired, opt => opt.MapFrom(src => false)) // Default to be entered here = false
@@ -129,7 +129,7 @@ namespace JsonMessageApi.Mappers
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.Sku, opt => opt.MapFrom(src => src.ArticleNo))
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.Description, opt => opt.MapFrom(src => src.Description))
-                .ForPath(dest => dest.Request.Ns_ArticleCreate.BonusActivity, opt => opt.MapFrom(src => src.UserActivity)) // Add
+                .ForPath(dest => dest.Request.Ns_ArticleCreate.BonusActivity, opt => opt.MapFrom(src => long.Parse(src.UserActivity))) // Add
                 .ForPath(dest => dest.Request.Ns_ArticleCreate.HotZoneClassification, opt => opt.MapFrom(src => src.AbcArea))
                 //.ForPath(dest => PackagingUnit.Pcs, opt => opt.MapFrom(src => src.PackagingUnit)) // Default to be entered here = pcs
                 //.ForPath(dest => false, opt => opt.MapFrom(src => src.IsLotNoRequired)) // Default to be entered here = false
@@ -241,10 +241,6 @@ namespace JsonMessageApi.Mappers
 
                     return true;
                 }));
-
-
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////
             
 
             //// NS_OrderUpdate => MAKE NEW MODEL
@@ -537,11 +533,11 @@ namespace JsonMessageApi.Mappers
                 // Request
                 .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Sku))
                 .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.WarehouseCode))
-                .ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity)) // +/-
+                //.ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity)) // +/-
                 .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentDate))
                 .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Bdcid))
                 .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Upos))
-                .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason))
+                //.ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason.ToString()))
                 //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????)) // Ignore
                 //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????)) // Expected amount
                 .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.BonusNo))
@@ -576,14 +572,93 @@ namespace JsonMessageApi.Mappers
                 // Request
                 .ForPath(dest => dest.Request.GS_StockAdjustment.Sku, opt => opt.MapFrom(src => src.ArticleNo))
                 .ForPath(dest => dest.Request.GS_StockAdjustment.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty)) // +/-
+                //.ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty)) // +/-
                 .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentDate, opt => opt.MapFrom(src => src.Created))
                 .ForPath(dest => dest.Request.GS_StockAdjustment.Bdcid, opt => opt.MapFrom(src => src.Barcode))
                 .ForPath(dest => dest.Request.GS_StockAdjustment.Upos, opt => opt.MapFrom(src => src.Barcode))
-                .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => src.ReasonCode))
+                //.ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => long.Parse(src.ReasonCode)))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType)) // Ignore
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty)) // Expected amount
                 .ForPath(dest => dest.Request.GS_StockAdjustment.BonusNo, opt => opt.MapFrom(src => src.Username))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            CreateMap<GS_StockAdjustmentDto, QuantityCorrection>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.WarehouseCode))
+                //.ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity)) // +/-
+                .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.AdjustmentDate))
+                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Bdcid))
+                .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Upos))
+                //.ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason.ToString()))
+                //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????)) // Ignore
+                //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????)) // Expected amount
+                .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.BonusNo))
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+            CreateMap<QuantityCorrection, GS_StockAdjustmentDto>()
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                .ForPath(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+                .ForPath(dest => dest.WarehouseCode, opt => opt.MapFrom(src => src.StorageArea))
+                //.ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.ActualQty)) // +/-
+                .ForPath(dest => dest.AdjustmentDate, opt => opt.MapFrom(src => src.Created))
+                .ForPath(dest => dest.Bdcid, opt => opt.MapFrom(src => src.Barcode))
+                .ForPath(dest => dest.Upos, opt => opt.MapFrom(src => src.Barcode))
+                //.ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => long.Parse(src.ReasonCode)))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType)) // Ignore
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty)) // Expected amount
+                .ForPath(dest => dest.BonusNo, opt => opt.MapFrom(src => src.Username))
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
                     // Ignore null objects & empty string properties
@@ -687,10 +762,10 @@ namespace JsonMessageApi.Mappers
                 //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
                 // Request
                 .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderReference))
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineReference))
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineReference.ToString()))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.OrderLineNo)) // What is this?
                 //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
-                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.ToteId))
+                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.ToteId.ToString()))
                 .ForPath(dest => dest.Barcode, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickedUpos))
                 .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.BonusNo))
                 .ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Request.GS_PickConfirmation.PickTime))
@@ -735,10 +810,10 @@ namespace JsonMessageApi.Mappers
                 // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
                 // Request
                 .ForPath(dest => dest.Request.GS_PickConfirmation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => src.PositionNo)) // What is this?
+                .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => long.Parse(src.PositionNo))) // What is this?
                 //.ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineNo, opt => opt.MapFrom(src => src.????))
                 //.ForPath(dest => dest.Request.GS_PickConfirmation.Sku, opt => opt.MapFrom(src => src.ArticleNo))
-                .ForPath(dest => dest.Request.GS_PickConfirmation.ToteId, opt => opt.MapFrom(src => src.TubNo))
+                .ForPath(dest => dest.Request.GS_PickConfirmation.ToteId, opt => opt.MapFrom(src => long.Parse(src.TubNo)))
                 .ForPath(dest => dest.Request.GS_PickConfirmation.PickedUpos, opt => opt.MapFrom(src => src.Barcode))
                 .ForPath(dest => dest.Request.GS_PickConfirmation.BonusNo, opt => opt.MapFrom(src => src.Username))
                 .ForPath(dest => dest.Request.GS_PickConfirmation.PickTime, opt => opt.MapFrom(src => src.Created))
@@ -785,12 +860,12 @@ namespace JsonMessageApi.Mappers
                 //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
                 //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
                 // Request
-                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.ToteId))
-                .ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.TrolleyId))
+                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.ToteId.ToString()))
+                .ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.TrolleyId.ToString()))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderReference)) // Do Next need this?
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.OrderLineNo)) // Do Next need this?
                 //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
-                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination))
+                .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.GS_ToteAssignment.Destination.ToString()))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.DestinationPure)) // TBC - For batch end tails
                 //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????)) // Do Next need this?
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
@@ -822,12 +897,12 @@ namespace JsonMessageApi.Mappers
                 //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
                 // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
                 // Request
-                .ForPath(dest => dest.Request.GS_ToteAssignment.ToteId, opt => opt.MapFrom(src => src.TubNo))
-                .ForPath(dest => dest.Request.GS_ToteAssignment.TrolleyId, opt => opt.MapFrom(src => src.TrolleyNo))
+                .ForPath(dest => dest.Request.GS_ToteAssignment.ToteId, opt => opt.MapFrom(src => long.Parse(src.TubNo)))
+                .ForPath(dest => dest.Request.GS_ToteAssignment.TrolleyId, opt => opt.MapFrom(src => long.Parse(src.TrolleyNo)))
                 //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderReference, opt => opt.MapFrom(src => src.????)) // Do Next need this?
                 //.ForPath(dest => dest.Request.GS_ToteAssignment.OrderLineNo, opt => opt.MapFrom(src => src.????)) // Do Next need this?
                 //.ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.Destination))
-                .ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => src.StorageArea))
+                .ForPath(dest => dest.Request.GS_ToteAssignment.Destination, opt => opt.MapFrom(src => long.Parse(src.StorageArea)))
                 //.ForPath(dest => dest.DestinationPure, opt => opt.MapFrom(src => src.)) // TBC - For batch end tails
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId)) // Do Next need this?
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
@@ -927,7 +1002,7 @@ namespace JsonMessageApi.Mappers
                // Request
                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.OrderReference))
                .ForPath(dest => dest.Username, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.BonusNo)) // Add username
-               .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.ReasonCode))
+               .ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.ReasonCode.ToString()))
                .ForPath(dest => dest.Positions, opt => opt.MapFrom(src => src.Request.GS_PickCancellation.Cancellations))
                //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.????))
                //.ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.????))
@@ -964,7 +1039,7 @@ namespace JsonMessageApi.Mappers
                // Request
                .ForPath(dest => dest.Request.GS_PickCancellation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
                .ForPath(dest => dest.Request.GS_PickCancellation.BonusNo, opt => opt.MapFrom(src => src.Username)) // Add username
-               .ForPath(dest => dest.Request.GS_PickCancellation.ReasonCode, opt => opt.MapFrom(src => src.ReasonCode))
+               .ForPath(dest => dest.Request.GS_PickCancellation.ReasonCode, opt => opt.MapFrom(src => long.Parse(src.ReasonCode)))
                .ForPath(dest => dest.Request.GS_PickCancellation.Cancellations, opt => opt.MapFrom(src => src.Positions))
                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchId))
                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PositionNo))
@@ -1132,7 +1207,7 @@ namespace JsonMessageApi.Mappers
             // GS_TrolleyCompleteDto > Tote(tub) => TubAssignment
             CreateMap<ToteDto, TubPosition>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.ToteId))
+                .ForPath(dest => dest.TubNo, opt => opt.MapFrom(src => src.ToteId.ToString()))
                 //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
                 //.ForPath(dest => dest.TrolleyNo, opt => opt.MapFrom(src => src.????))
                 //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.????))
@@ -1153,7 +1228,7 @@ namespace JsonMessageApi.Mappers
                 }));
             CreateMap<TubPosition, ToteDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.ToteId, opt => opt.MapFrom(src => src.TubNo))
+                .ForPath(dest => dest.ToteId, opt => opt.MapFrom(src => long.Parse(src.TubNo)))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TrolleyNo))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.Destination))
@@ -1176,8 +1251,8 @@ namespace JsonMessageApi.Mappers
             // N/A > OrderLine => IncomingGoodsPosition
             CreateMap<OrderLineDto, IncomingGoodsPosition>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-                .ForPath(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo.ToString()))
+                .ForPath(dest => dest.IncomingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference.ToString()))
                 .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.PriorityWithinBatch))
                 //.ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.????))
@@ -1204,8 +1279,8 @@ namespace JsonMessageApi.Mappers
                 }));
             CreateMap<IncomingGoodsPosition, OrderLineDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.IncomingGoodsNo))
+                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => long.Parse(src.PositionNo)))
+                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => long.Parse(src.IncomingGoodsNo)))
                 .ForPath(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
                 //.ForPath(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.????))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.StorageArea))
@@ -1234,8 +1309,8 @@ namespace JsonMessageApi.Mappers
             // NS_OrderCreateDto > OrderLine => OutgoingGoodsPosition
             CreateMap<OrderLineDto, OutgoingGoodsPosition>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo.ToString()))
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference.ToString()))
                 .ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.Sku))
                 //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.PriorityWithinBatch))
                 //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????))
@@ -1259,8 +1334,8 @@ namespace JsonMessageApi.Mappers
                 }));
             CreateMap<OutgoingGoodsPosition, OrderLineDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => long.Parse(src.PositionNo)))
+                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => long.Parse(src.OutgoingGoodsNo)))
                 .ForPath(dest => dest.Sku, opt => opt.MapFrom(src => src.ArticleNo))
                 //.ForPath(dest => dest.PriorityWithinBatch, opt => opt.MapFrom(src => src.Destination))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType))
@@ -1286,8 +1361,8 @@ namespace JsonMessageApi.Mappers
             // NS_OrderLineCancelDto > OrderLineCancel => CancelRequest
             CreateMap<OrderLineCancelDto, CancelRequest>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
-                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo.ToString()))
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference.ToString()))
                 .ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.BatchReference))
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
@@ -1305,8 +1380,8 @@ namespace JsonMessageApi.Mappers
                 }));
             CreateMap<CancelRequest, OrderLineCancelDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
-                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
+                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => long.Parse(src.PositionNo)))
+                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => long.Parse(src.OutgoingGoodsNo)))
                 .ForPath(dest => dest.BatchReference, opt => opt.MapFrom(src => src.BatchId))
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
@@ -1326,8 +1401,8 @@ namespace JsonMessageApi.Mappers
             // GS_PickCancellationDto > CancellationDto => PickCancelation
             CreateMap<CancellationDto, PickCancelation>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference)) // Add
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo)) // Add
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference.ToString())) // Add
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo.ToString())) // Add
                 .ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.BatchReference))
                 //.ForPath(dest => dest.ArticleNo, opt => opt.MapFrom(src => src.????))
                 //.ForPath(dest => dest.CancelQty, opt => opt.MapFrom(src => src.????))
@@ -1348,8 +1423,9 @@ namespace JsonMessageApi.Mappers
                 }));
             CreateMap<PickCancelation, CancellationDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo)) // Add
-                .ForPath(dest => dest.BatchReference, opt => opt.MapFrom(src => src.BatchId)) // Add
+                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => long.Parse(src.OutgoingGoodsNo))) // Add
+                .ForPath(dest => dest.BatchReference, opt => opt.MapFrom(src => long.Parse(src.BatchId))) // Add
+                .ForPath(dest => dest.BatchReference, opt => opt.MapFrom(src => src.BatchId))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ArticleNo))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.CancelQty))
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.ReasonCode))
@@ -1371,8 +1447,8 @@ namespace JsonMessageApi.Mappers
             // GS_PickCancellationRequestDto > CancellationRequests => CancelRequest
             CreateMap<CancellationRequestsDto, RequestCancelation>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference))
-                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo))
+                .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.OrderLineReference.ToString()))
+                .ForPath(dest => dest.PositionNo, opt => opt.MapFrom(src => src.OrderLineNo.ToString()))
                 .ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.BatchReference)) // Add
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {
@@ -1390,8 +1466,8 @@ namespace JsonMessageApi.Mappers
                 }));
             CreateMap<RequestCancelation, CancellationRequestsDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
-                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
-                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => src.PositionNo))
+                .ForPath(dest => dest.OrderLineReference, opt => opt.MapFrom(src => long.Parse(src.OutgoingGoodsNo)))
+                .ForPath(dest => dest.OrderLineNo, opt => opt.MapFrom(src => long.Parse(src.PositionNo)))
                 .ForPath(dest => dest.BatchReference, opt => opt.MapFrom(src => src.BatchId)) // Add
                 .ForAllMembers(x => x.Condition((source, destination, property) =>
                 {

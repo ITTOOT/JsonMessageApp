@@ -19,12 +19,20 @@ namespace JsonMessageApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class GS_StockAdjustmentController : ToController<MessageDto, MessageDto>
+    public class QuantityCorrectionController : ToController<QuantityCorrection, QuantityCorrection>
     {
-        public GS_StockAdjustmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
+        public QuantityCorrectionController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
         }
     }
+    //[Route("[controller]")]
+    //[ApiController]
+    //public class GS_StockAdjustmentController : ToController<GS_StockAdjustment, GS_StockAdjustment>
+    //{
+    //    public GS_StockAdjustmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
+    //    {
+    //    }
+    //}
 
     [Route("[controller]")]
     [ApiController]

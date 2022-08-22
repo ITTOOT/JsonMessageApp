@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 
@@ -20,6 +21,7 @@ using Serilog;
 
 namespace JsonMessageApi.Controllers
 {
+    /// This controller allows the client to GET messages from ToErph put there by GFT (POST GFT message)
     /// <typeparam name="NameOfTo"> RecordType == nameof(TelegramName) </typeparam>
     /// <typeparam name="NameOfToDto"> The class used for the serialization </typeparam>
     public abstract class ToController<NameOfTo, NameOfToDto> : ControllerBase
@@ -88,8 +90,9 @@ namespace JsonMessageApi.Controllers
 
 
                 // Map request model to new entity object
+                //var tempMessage = _mapper.Map<GS_StockAdjustmentDto>(message);
+                var tempMessage = _mapper.Map<QuantityCorrection>(message);
                 //var tempMessage = _mapper.Map<MessageDto>(message);
-                var tempMessage = _mapper.Map<MessageDto>(message);
 
                 // Find an existing entity
                 //var found = await _context.Messages.FindAsync(tempEntity.Uid);
@@ -100,6 +103,7 @@ namespace JsonMessageApi.Controllers
 
                 // Add entities to the data context
                 //await _context.Messages.AddAsync(tempMessage);
+                //await _context.MessagesToErp.AddAsync(tempMessage);
                 await _context.MessagesToErp.AddAsync(tempMessage);
                 await _context.SaveChangesAsync();
 
@@ -121,7 +125,7 @@ namespace JsonMessageApi.Controllers
                 // return NoContent();
 
                 Log.Write((Serilog.Events.LogEventLevel)LogLevel.Information, $"Post Ok {nameof(NameOfTo)} Message={message}");
-
+                //return Ok(tempMessage);
                 return CreatedAtAction(nameof(Get), new { id = tempMessage.Id }, _mirrorOnPost ? tempMessage : null);
             }
             catch (Exception e)

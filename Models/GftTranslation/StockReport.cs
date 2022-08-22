@@ -39,12 +39,12 @@ namespace JsonMessageApi.Models
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public decimal? ActualQty { get; set; }
+		public decimal? ActualQty { get; set; } // WAS decimal? NEW long?
 
-		/// <summary>
-		/// StorageArea 
-		/// </summary>
-		[XmlAttribute]
+        /// <summary>
+        /// StorageArea 
+        /// </summary>
+        [XmlAttribute]
 		[JsonProperty]
 		public string StorageArea { get; set; }
 

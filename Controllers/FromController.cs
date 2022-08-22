@@ -21,6 +21,7 @@ using Serilog;
 
 namespace JsonMessageApi.Controllers
 {
+    /// Writes an Message into the FromErp Table for GFT
     /// <typeparam name="NameOfFrom"> RecordType == nameof(TelegramName) </typeparam>
     /// <typeparam name="NameOfFromDto"> The class used for the serialization </typeparam>
     public abstract class FromController<NameOfFrom, NameOfFromDto> : ControllerBase
@@ -45,7 +46,7 @@ namespace JsonMessageApi.Controllers
         [HttpGet]
         [ActionName(nameof(Get))]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<MessageDto>> Get()
+        public async Task<ActionResult<List<MessageDto>>> Get()
         {
 
             // Find the entity

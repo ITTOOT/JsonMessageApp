@@ -44,7 +44,7 @@
 		public string PickedUpos { get; set; }
 
         [JsonProperty("Qty")]
-        public string Qty { get; set; }
+        public decimal? Qty { get; set; } // WAS string
 
         [JsonProperty("BonusNo")]
 		public string BonusNo { get; set; }

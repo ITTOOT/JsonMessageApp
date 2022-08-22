@@ -46,14 +46,14 @@ namespace JsonMessageApi.Models
         /// </summary>
         [XmlAttribute]
 		[JsonProperty]
-		public string EventTime { get; set; }
+		public DateTime? EventTime { get; set; }
 
 		/// <summary>
 		/// CancelQty 
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public decimal StorageArea { get; set; }
+		public string StorageArea { get; set; }
 
 	}
 }

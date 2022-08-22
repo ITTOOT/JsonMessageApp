@@ -1,4 +1,10 @@
-﻿namespace JsonMessageApi.Models
+﻿using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System.Globalization;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+
+namespace JsonMessageApi.Models
 {
     using System;
     using System.Collections.Generic;
@@ -20,7 +26,7 @@
         [JsonProperty("GS_StockAdjustment")]
         public GS_StockAdjustmentDto GS_StockAdjustment
         {
-            get { return (this._GS_StockAdjustment == null) ? null : JsonConvert.DeserializeObject<GS_StockAdjustmentDto>(this._GS_StockAdjustment); }
+            get { return (this._GS_StockAdjustment == null) ? null : JsonConvert.DeserializeObject<GS_StockAdjustmentDto>(this._GS_StockAdjustment, OrderCreateConverter.Settings); }
             set { _GS_StockAdjustment = JsonConvert.SerializeObject(value); }
         }
     }
@@ -44,7 +50,7 @@
 		public string Bdcid { get; set; }
 
 		[JsonProperty("UPOS")]
-		public object Upos { get; set; }
+		public string Upos { get; set; }
 
 		[JsonProperty("AdjustmentReason")]
 		public long AdjustmentReason { get; set; }
@@ -66,3 +72,23 @@
 		}
 	}
 }
+
+
+
+
+
+// JSON settings
+internal static class OrderCreateConverter
+{
+    public static readonly JsonSerializerSettings Settings = new JsonSerializerSettings
+    {
+        MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+        DateParseHandling = DateParseHandling.None,
+        Converters =
+            {
+                new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
+            },
+    };
+}
+
+

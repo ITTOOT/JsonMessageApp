@@ -67,7 +67,7 @@ namespace JsonMessageApi.Models
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public string ReasonCode { get; set; }
+		public string? ReasonCode { get; set; } // WAS string long
 
         /// <summary>
         /// ReasonCode 

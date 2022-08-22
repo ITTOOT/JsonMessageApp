@@ -31,57 +31,65 @@ namespace JsonMessageApi.Models
         /// StorageArea 
         /// </summary>
         [XmlAttribute]
-		[JsonProperty]
-		public string StorageArea { get; set; }
+        [JsonProperty]
+        //[JsonProperty("StorageArea")]
+        public string StorageArea { get; set; }
 
 		/// <summary>
 		/// ArticleNo 
 		/// </summary>
 		[XmlAttribute]
-		[JsonProperty]
-		public string ArticleNo { get; set; }
+        [JsonProperty]
+        //[JsonProperty("ArticleNo")]
+        public string ArticleNo { get; set; }
 
 		/// <summary>
 		/// MovementType 
 		/// </summary>
 		[XmlAttribute]
-		[JsonProperty]
-		public Constants.MovementType? MovementType { get; set; }
+        [JsonProperty]
+        //[JsonProperty("Username")]
+        public Constants.MovementType? MovementType { get; set; }
 
 		/// <summary>
 		/// TargetQty 
 		/// </summary>
 		[XmlAttribute]
-		[JsonProperty]
-		public decimal? TargetQty { get; set; }
+        [JsonProperty]
+        //[JsonProperty("TargetQty")]
+        public decimal? TargetQty { get; set; }
 
 		/// <summary>
 		/// ActualQty 
 		/// </summary>
 		[XmlAttribute]
-		[JsonProperty]
-		public decimal? ActualQty { get; set; }
+        [JsonProperty]
+        //[JsonProperty("ActualQty")]
+        public decimal? ActualQty { get; set; } // WAS decimal? NEW long?
 
-		/// <summary>
-		/// Barcode 
-		/// </summary>
-		[XmlAttribute]
-		[JsonProperty]
-		public string Barcode { get; set; }
+        /// <summary>
+        /// Barcode 
+        /// </summary>
+        [XmlAttribute]
+        [JsonProperty]
+        //[JsonProperty("Barcode")]
+        public string Barcode { get; set; }
 
 		/// <summary>
 		/// ReasonCode 
 		/// </summary>
 		[XmlAttribute]
-		[JsonProperty]
-		public string ReasonCode { get; set; }
+        [JsonProperty]
+        //[JsonProperty("ReasonCode")]
+        public string ReasonCode { get; set; } // WAS string NEW long?
 
-		/// <summary>
-		/// Username 
-		/// </summary>
-		[XmlAttribute]
+        /// <summary>
+        /// Username 
+        /// </summary>
+        [XmlAttribute]
 		[JsonProperty]
-		public string Username { get; set; }
+        //[JsonProperty("Username")]
+        public string Username { get; set; }
 
 	}
 }

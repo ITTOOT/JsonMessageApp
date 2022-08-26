@@ -16,14 +16,18 @@
 	{
         internal string _NS_OrderCreate { get; set; }
 
-        [NotMapped]
-        [JsonProperty("NS_OrderCreate")]
-        public NS_OrderCreateDto NS_OrderCreate
-        {
-            get { return (this._NS_OrderCreate == null) ? null : JsonConvert.DeserializeObject<NS_OrderCreateDto>(this._NS_OrderCreate); }
-            set { _NS_OrderCreate = JsonConvert.SerializeObject(value); }
-        }
-    }
+		[NotMapped]
+		[JsonProperty("NS_OrderCreate")]
+		public NS_OrderCreateDto NS_OrderCreate
+		{
+			get { return (this._NS_OrderCreate == null) ? null : JsonConvert.DeserializeObject<NS_OrderCreateDto>(this._NS_OrderCreate); }
+			set { _NS_OrderCreate = JsonConvert.SerializeObject(value); }
+		}
+
+		//[NotMapped]
+		//[JsonProperty("NS_OrderCreate")]
+		//public NS_OrderCreateDto NS_OrderCreate { get; set; }
+	}
 
     [Keyless]
     public partial class NS_OrderCreateDto

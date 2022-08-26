@@ -45,9 +45,8 @@ namespace JsonMessageApi.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<List<NameOfFromDto>>> Get()
         {
-
             // Find the entity
-            var messages = await _context.MessagesFromErp.ToListAsync();
+            var messages = _mapper.Map<List<OutgoingGoods>>(await _context.MessagesFromErp.ToListAsync()); // from ERP model
 
             // HTTP 204 No Content
             if (messages == null)
@@ -74,7 +73,7 @@ namespace JsonMessageApi.Controllers
         {
             try
             {
-                var tempMessage = _mapper.Map<OutgoingGoods>(message); // from ERP model
+                var tempMessage = _mapper.Map<MessageFromErpDto>(message);
                 
                 // Add entities to the data context
                 await _context.MessagesFromErp.AddAsync(tempMessage);

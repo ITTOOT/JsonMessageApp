@@ -11,7 +11,10 @@ using JsonMessageApp.Config;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Serilog;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,18 +24,22 @@ namespace JsonMessageApi.Controllers
     [ApiController]
     public class QuantityCorrectionController : ToController<QuantityCorrection, QuantityCorrection>
     {
+        private readonly IMapper _mapper;
+
         public QuantityCorrectionController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
+            _mapper = mapper;
         }
     }
-    //[Route("[controller]")]
-    //[ApiController]
-    //public class GS_StockAdjustmentController : ToController<GS_StockAdjustment, GS_StockAdjustment>
-    //{
-    //    public GS_StockAdjustmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
-    //    {
-    //    }
-    //}
+    [Route("[controller]")]
+    [ApiController]
+    public class GS_StockAdjustmentController : ToController<MessageDto, MessageDto>
+    {
+        public GS_StockAdjustmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
+        {
+            
+        }
+    }
 
     [Route("[controller]")]
     [ApiController]

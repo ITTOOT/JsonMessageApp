@@ -5,6 +5,8 @@
 
     using Newtonsoft.Json;
 
+    using NextApi.Utilities.JSON;
+
     /// <summary>
     /// Rückmeldung an das BFS, wenn ein Paket am Ziel abgeworfen wurde
     /// </summary>
@@ -37,5 +39,18 @@
             get { return (this._Request == null) ? null : JsonConvert.DeserializeObject<RequestDto>(this._Request); }
             set { _Request = JsonConvert.SerializeObject(value); }
         }
+    }
+
+
+    // JSON deserializer
+    public partial class MessageDto
+    {
+        public static MessageDto FromJson(string json) => JsonConvert.DeserializeObject<MessageDto>(json);
+    }
+
+    // JSON serializer
+    public static class MessageDtoSerialize
+    {
+        public static string ToJson(this MessageDto self) => JsonConvert.SerializeObject(self);
     }
 }

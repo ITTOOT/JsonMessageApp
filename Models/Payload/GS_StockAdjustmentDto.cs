@@ -22,13 +22,18 @@ namespace JsonMessageApi.Models
     {
         internal string _GS_StockAdjustment { get; set; }
 
+        //[NotMapped]
+        //[JsonProperty("GS_StockAdjustment")]
+        //public GS_StockAdjustmentDto GS_StockAdjustment
+        //{
+
+        //    get { return (this._GS_StockAdjustment == null) ? null : JsonConvert.DeserializeObject<GS_StockAdjustmentDto>(this.GS_StockAdjustment, OrderCreateConverter.Settings); }
+        //    set { _GS_StockAdjustment = JsonConvert.SerializeObject(value).ToString(); }
+        //}
+
         [NotMapped]
         [JsonProperty("GS_StockAdjustment")]
-        public GS_StockAdjustmentDto GS_StockAdjustment
-        {
-            get { return (this._GS_StockAdjustment == null) ? null : JsonConvert.DeserializeObject<GS_StockAdjustmentDto>(this._GS_StockAdjustment, OrderCreateConverter.Settings); }
-            set { _GS_StockAdjustment = JsonConvert.SerializeObject(value); }
-        }
+        public GS_StockAdjustmentDto GS_StockAdjustment { get; set; }
     }
 
     [Keyless]
@@ -41,10 +46,10 @@ namespace JsonMessageApi.Models
 		public string WarehouseCode { get; set; }
 
 		[JsonProperty("Quantity")]
-		public long Quantity { get; set; }
+		public long? Quantity { get; set; }
 
 		[JsonProperty("adjustmentDate")]
-		public DateTime AdjustmentDate { get; set; }
+		public DateTime? AdjustmentDate { get; set; }
 
 		[JsonProperty("BDCID")]
 		public string Bdcid { get; set; }
@@ -53,7 +58,7 @@ namespace JsonMessageApi.Models
 		public string Upos { get; set; }
 
 		[JsonProperty("AdjustmentReason")]
-		public long AdjustmentReason { get; set; }
+		public long? AdjustmentReason { get; set; }
 
 		[JsonProperty("BonusNo")]
 		public string BonusNo { get; set; }

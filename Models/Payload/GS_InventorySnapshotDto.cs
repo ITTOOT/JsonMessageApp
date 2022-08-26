@@ -14,15 +14,9 @@
     /// 
 	public partial class RequestDto
     {
-        internal string _GS_InventorySnapshot { get; set; }
-
         [NotMapped]
         [JsonProperty("GS_InventorySnapshot")]
-        public GS_InventorySnapshotDto GS_InventorySnapshot
-        {
-            get { return (this._GS_InventorySnapshot == null) ? null : JsonConvert.DeserializeObject<GS_InventorySnapshotDto>(this._GS_InventorySnapshot); }
-            set { _GS_InventorySnapshot = JsonConvert.SerializeObject(value); }
-        }
+        public GS_InventorySnapshotDto GS_InventorySnapshot { get; set; }
     }
 
     [Keyless]

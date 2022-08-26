@@ -14,15 +14,9 @@
     /// 
 	public partial class RequestDto
     {
-        internal string _GS_ValidationError { get; set; }
-
         [NotMapped]
         [JsonProperty("GS_ValidationError")]
-        public GS_ValidationErrorDto GS_ValidationError
-        {
-            get { return (this._GS_ValidationError == null) ? null : JsonConvert.DeserializeObject<GS_ValidationErrorDto>(this._GS_ValidationError); }
-            set { _GS_ValidationError = JsonConvert.SerializeObject(value); }
-        }
+        public GS_ValidationErrorDto GS_ValidationError { get; set; }
     }
 
     [Keyless]

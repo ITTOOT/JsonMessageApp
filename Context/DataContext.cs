@@ -32,10 +32,10 @@ namespace JsonMessageApi.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Message
-            modelBuilder.Entity<MessageDto>()
+            modelBuilder.Entity<MessageFromErpDto>()
                 .Property(b => b._Hdr).HasColumnName("Hdr");
 
-            modelBuilder.Entity<MessageDto>()
+            modelBuilder.Entity<MessageFromErpDto>()
                 .Property(b => b._Request).HasColumnName("Request");
 
             // Payload
@@ -49,14 +49,14 @@ namespace JsonMessageApi.Context
                     eb.Property(b => b._NS_OrderLineCancel).HasColumnName("NS_OrderLineCancel");
                     eb.Property(b => b._NS_ValidationError).HasColumnName("NS_ValidationError");
                     eb.Property(b => b._GS_StockAdjustment).HasColumnName("GS_StockAdjustment");
-                    eb.Property(b => b._GS_InventorySnapshot).HasColumnName("GS_InventorySnapshot");
-                    eb.Property(b => b._GS_ToteAssignment).HasColumnName("GS_ToteAssignment");
-                    eb.Property(b => b._GS_TrolleyComplete).HasColumnName("GS_TrolleyComplete");
-                    eb.Property(b => b._GS_PickConfirmation).HasColumnName("GS_PickConfirmation");
-                    eb.Property(b => b._GS_PickCancellation).HasColumnName("GS_PickCancellation");
-                    eb.Property(b => b._GS_PickCancellationRequest).HasColumnName("GS_PickCancellationRequest");
-                    eb.Property(b => b._GS_Activity).HasColumnName("GS_Activity");
-                    eb.Property(b => b._GS_ValidationError).HasColumnName("GS_ValidationError");
+                    //eb.Property(b => b._GS_InventorySnapshot).HasColumnName("GS_InventorySnapshot");
+                    //eb.Property(b => b._GS_ToteAssignment).HasColumnName("GS_ToteAssignment");
+                    //eb.Property(b => b._GS_TrolleyComplete).HasColumnName("GS_TrolleyComplete");
+                    //eb.Property(b => b._GS_PickConfirmation).HasColumnName("GS_PickConfirmation");
+                    //eb.Property(b => b._GS_PickCancellation).HasColumnName("GS_PickCancellation");
+                    //eb.Property(b => b._GS_PickCancellationRequest).HasColumnName("GS_PickCancellationRequest");
+                    //eb.Property(b => b._GS_Activity).HasColumnName("GS_Activity");
+                    //eb.Property(b => b._GS_ValidationError).HasColumnName("GS_ValidationError");
                     eb.HasNoKey();
                 });
 
@@ -99,13 +99,7 @@ namespace JsonMessageApi.Context
         }
 
         // Tables - Query DB instances of the resource
-        public DbSet<MessageDto> Messages { get; set; }
-        public DbSet<HdrDto> Hdrs { get; set; }
-        public DbSet<RequestDto> Requests { get; set; }
-        //public DbSet<GS_StockAdjustmentDto> MessagesToErp { get; set; }
-        public DbSet<QuantityCorrection> MessagesToErp { get; set; } // ERP model
-        //public DbSet<MessageDto> MessagesFromErp { get; set; }
-        public DbSet<OrderLineDto> OrderLines { get; set; }
-        public DbSet<OutgoingGoods> MessagesFromErp { get; set; } // will be ERP table
+        public DbSet<QuantityCorrection> MessagesToErp { get; set; } // to ERP model
+        public DbSet<OutgoingGoods> MessagesFromErp { get; set; } // from ERP model
     }
 }

@@ -14,15 +14,9 @@
     /// 
 	public partial class RequestDto
     {
-        internal string _GS_PickConfirmation { get; set; }
-
         [NotMapped]
         [JsonProperty("GS_PickConfirmation")]
-        public GS_PickConfirmationDto GS_PickConfirmation
-        {
-            get { return (this._GS_PickConfirmation == null) ? null : JsonConvert.DeserializeObject<GS_PickConfirmationDto>(this._GS_PickConfirmation); }
-            set { _GS_PickConfirmation = JsonConvert.SerializeObject(value); }
-        }
+        public GS_PickConfirmationDto GS_PickConfirmation { get; set; }
     }
 
     [Keyless]

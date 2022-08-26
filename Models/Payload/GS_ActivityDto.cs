@@ -14,15 +14,9 @@
     /// 
 	public partial class RequestDto
     {
-        internal string _GS_Activity { get; set; }
-
-        [NotMapped]
+		[NotMapped]
         [JsonProperty("GS_Activity")]
-        public GS_ActivityDto GS_Activity
-        {
-            get { return (this._GS_Activity == null) ? null : JsonConvert.DeserializeObject<GS_ActivityDto>(this._GS_Activity); }
-            set { _GS_Activity = JsonConvert.SerializeObject(value); }
-        }
+        public GS_ActivityDto GS_Activity { get; set; }
     }
 
     [Keyless]

@@ -22,18 +22,7 @@ namespace JsonMessageApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class QuantityCorrectionController : ToController<QuantityCorrection, QuantityCorrection>
-    {
-        private readonly IMapper _mapper;
-
-        public QuantityCorrectionController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
-        {
-            _mapper = mapper;
-        }
-    }
-    [Route("[controller]")]
-    [ApiController]
-    public class GS_StockAdjustmentController : ToController<MessageDto, MessageDto>
+    public class GS_StockAdjustmentController : ToController<QuantityCorrection, QuantityCorrection> // should be to ERP model
     {
         public GS_StockAdjustmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -43,7 +32,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class GS_InventorySnapshotController : ToController<MessageDto, MessageDto>
+    public class GS_InventorySnapshotController : ToController<MessageToErpDto, MessageToErpDto>
     {
         public GS_InventorySnapshotController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -52,7 +41,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class GS_ToteAssignmentController : ToController<MessageDto, MessageDto>
+    public class GS_ToteAssignmentController : ToController<MessageToErpDto, MessageToErpDto>
     {
         public GS_ToteAssignmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -61,7 +50,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class GS_PickCancellationController : ToController<MessageDto, MessageDto>
+    public class GS_PickCancellationController : ToController<MessageToErpDto, MessageToErpDto>
     {
         public GS_PickCancellationController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -70,7 +59,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class GS_PickCancellationRequestController : ToController<MessageDto, MessageDto>
+    public class GS_PickCancellationRequestController : ToController<MessageToErpDto, MessageToErpDto>
     {
         public GS_PickCancellationRequestController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -79,7 +68,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class GS_ActivityController : ToController<MessageDto, MessageDto>
+    public class GS_ActivityController : ToController<MessageToErpDto, MessageToErpDto>
     {
         public GS_ActivityController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -88,7 +77,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class GS_ValidationErrorController : ToController<MessageDto, MessageDto>
+    public class GS_ValidationErrorController : ToController<MessageToErpDto, MessageToErpDto>
     {
         public GS_ValidationErrorController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {

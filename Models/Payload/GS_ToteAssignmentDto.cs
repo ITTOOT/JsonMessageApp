@@ -14,15 +14,9 @@
     /// 
 	public partial class RequestDto
     {
-        internal string _GS_ToteAssignment { get; set; }
-
         [NotMapped]
         [JsonProperty("GS_ToteAssignment")]
-        public GS_ToteAssignmentDto GS_ToteAssignment
-        {
-            get { return (this._GS_ToteAssignment == null) ? null : JsonConvert.DeserializeObject<GS_ToteAssignmentDto>(this._GS_ToteAssignment); }
-            set { _GS_ToteAssignment = JsonConvert.SerializeObject(value); }
-        }
+        public GS_ToteAssignmentDto GS_ToteAssignment { get; set; }
     }
 
     [Keyless]

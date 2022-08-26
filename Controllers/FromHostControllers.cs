@@ -20,7 +20,7 @@ namespace JsonMessageApi.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class NS_ArticleCreateController : FromController<MessageDto, MessageDto>
+    public class NS_ArticleCreateController : FromController<MessageFromErpDto, MessageFromErpDto>
     {
         public NS_ArticleCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -29,7 +29,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderCreateController : FromController<MessageDto, MessageDto>
+    public class NS_OrderCreateController : FromController<MessageFromErpDto, MessageFromErpDto>
     {
         public NS_OrderCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -40,7 +40,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderUpdateController : FromController<MessageDto, MessageDto>
+    public class NS_OrderUpdateController : FromController<MessageFromErpDto, MessageFromErpDto>
     {
         public NS_OrderUpdateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -49,7 +49,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderCancelController : FromController<MessageDto, MessageDto>
+    public class NS_OrderCancelController : FromController<MessageFromErpDto, MessageFromErpDto>
     {
         public NS_OrderCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -58,7 +58,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_OrderLineCancelController : FromController<MessageDto, MessageDto>
+    public class NS_OrderLineCancelController : FromController<MessageFromErpDto, MessageFromErpDto>
     {
         public NS_OrderLineCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -67,7 +67,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("[controller]")]
     [ApiController]
-    public class NS_ValidationErrorController : FromController<MessageDto, MessageDto>
+    public class NS_ValidationErrorController : FromController<MessageFromErpDto, MessageFromErpDto>
     {
         public NS_ValidationErrorController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {

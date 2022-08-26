@@ -14,15 +14,9 @@
     /// 
 	public partial class RequestDto
     {
-        internal string _GS_TrolleyComplete { get; set; }
-
         [NotMapped]
         [JsonProperty("GS_TrolleyComplete")]
-        public GS_TrolleyCompleteDto GS_TrolleyComplete
-        {
-            get { return (this._GS_TrolleyComplete == null) ? null : JsonConvert.DeserializeObject<GS_TrolleyCompleteDto>(this._GS_TrolleyComplete); }
-            set { _GS_TrolleyComplete = JsonConvert.SerializeObject(value); }
-        }
+        public GS_TrolleyCompleteDto GS_TrolleyComplete { get; set; }
     }
 
     [Keyless]

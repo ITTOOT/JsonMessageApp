@@ -14,15 +14,9 @@
     /// 
 	public partial class RequestDto
     {
-        internal string _GS_PickCancellationRequest { get; set; }
-
         [NotMapped]
         [JsonProperty("GS_PickCancellationRequest")]
-        public GS_PickCancellationRequestDto GS_PickCancellationRequest
-        {
-            get { return (this._GS_PickCancellationRequest == null) ? null : JsonConvert.DeserializeObject<GS_PickCancellationRequestDto>(this._GS_PickCancellationRequest); }
-            set { _GS_PickCancellationRequest = JsonConvert.SerializeObject(value); }
-        }
+        public GS_PickCancellationRequestDto GS_PickCancellationRequest { get; set; }
     }
 
     [Keyless]

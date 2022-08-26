@@ -12,7 +12,7 @@ namespace JsonMessageApi.Mappers
             // Map source to destination...
 
             //
-            CreateMap<MessageDto, MessageDto>().ReverseMap();
+            CreateMap<MessageFromErpDto, MessageFromErpDto>().ReverseMap();
             //CreateMap<MessageDto, Message>().ReverseMap();
 
         }

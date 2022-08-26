@@ -22,15 +22,6 @@ namespace JsonMessageApi.Models
     {
         internal string _GS_StockAdjustment { get; set; }
 
-        //[NotMapped]
-        //[JsonProperty("GS_StockAdjustment")]
-        //public GS_StockAdjustmentDto GS_StockAdjustment
-        //{
-
-        //    get { return (this._GS_StockAdjustment == null) ? null : JsonConvert.DeserializeObject<GS_StockAdjustmentDto>(this.GS_StockAdjustment, OrderCreateConverter.Settings); }
-        //    set { _GS_StockAdjustment = JsonConvert.SerializeObject(value).ToString(); }
-        //}
-
         [NotMapped]
         [JsonProperty("GS_StockAdjustment")]
         public GS_StockAdjustmentDto GS_StockAdjustment { get; set; }

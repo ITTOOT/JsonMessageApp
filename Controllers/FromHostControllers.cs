@@ -24,6 +24,7 @@ namespace JsonMessageApi.Controllers
     {
         public NS_ArticleCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
+            //CreateMaterialMaster
         }
     }
 
@@ -33,8 +34,7 @@ namespace JsonMessageApi.Controllers
     {
         public NS_OrderCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
-
-            //IncomingGoodsPosition
+            //OutgoingGoods
         }
     }
 
@@ -44,6 +44,7 @@ namespace JsonMessageApi.Controllers
     {
         public NS_OrderUpdateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
+            //OrderUpdate
         }
     }
 
@@ -53,6 +54,7 @@ namespace JsonMessageApi.Controllers
     {
         public NS_OrderCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
+            //OrderCancel
         }
     }
 
@@ -62,6 +64,7 @@ namespace JsonMessageApi.Controllers
     {
         public NS_OrderLineCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
+            //OrderLineCancel
         }
     }
 
@@ -71,6 +74,7 @@ namespace JsonMessageApi.Controllers
     {
         public NS_ValidationErrorController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
+            //ValidationErrorFromErp
         }
     }
 }

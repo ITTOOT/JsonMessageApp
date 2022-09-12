@@ -26,7 +26,7 @@
 		public string BonusNo { get; set; }
 
 		[JsonProperty("EventTime")]
-		public DateTime EventTime { get; set; }
+		public DateTime? EventTime { get; set; }
 
 		[JsonProperty("BonusActivity")]
 		public string BonusActivity { get; set; }

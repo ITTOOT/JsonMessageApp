@@ -28,6 +28,7 @@ namespace JsonMessageApi.Mappers
 
             //--------------------------------------------------------------------------------------------
             // Hdr = Bi-directional to & from ERP
+            // ******* To add the header to the JSON just uncomment each attribute within each message *******
             //--------------------------------------------------------------------------------------------
 
             // Header - Next header information NOT required for StoreWare
@@ -109,12 +110,15 @@ namespace JsonMessageApi.Mappers
                         return false;
                     if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
                         return false;
+                    if (property.GetType() == typeof(Guid) && string.IsNullOrEmpty((string)property))
+                        return false;
 
                     return true;
                 }));
             CreateMap<CreateMaterialMaster, MessageFromErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "NS_ArticleCreate"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -153,6 +157,8 @@ namespace JsonMessageApi.Mappers
                         return false;
                     if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
                         return false;
+                    if (property.GetType() == typeof(Guid) && string.IsNullOrEmpty((string)property))
+                        return false;
 
                     return true;
                 }));
@@ -174,11 +180,11 @@ namespace JsonMessageApi.Mappers
                 //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
                 // Request
                 .ForPath(dest => dest.OutgoingGoodsNo, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderReference))
-            //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.BatchReference)) // Add // String to Long
-            //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.Destination)) // Add // String to Long
+                //.ForPath(dest => dest.BatchId, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.BatchReference)) // Add // String to Long
+                //.ForPath(dest => dest.Destination, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.Destination)) // Add // String to Long
                 .ForPath(dest => dest.StorageArea, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.WarehouseCode))
                 .ForPath(dest => dest.BatchPriorityTime, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.PickByTime))
-            //.ForPath(dest => dest.BatchPriority, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.BatchPriority)) // String to Int
+                //.ForPath(dest => dest.BatchPriority, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.BatchPriority)) // String to Int
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchDescription)) // Required?
                 //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.BatchEndAllowed)) // Add
                 .ForPath(dest => dest.Positions, opt => opt.MapFrom(src => src.Request.NS_OrderCreate.OrderLines))
@@ -197,12 +203,15 @@ namespace JsonMessageApi.Mappers
                         return false;
                     if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
                         return false;
+                    if (property.GetType() == typeof(OutgoingGoodsPosition) && OutgoingGoodsPosition.Equals(property, null))
+                        return false;
 
                     return true;
                 }));
             CreateMap<OutgoingGoods, MessageFromErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "NS_OrderCreate"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -238,6 +247,8 @@ namespace JsonMessageApi.Mappers
                     if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
                         return false;
                     if (property.GetType() == typeof(RecordType) && RecordType.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(OutgoingGoodsPosition) && OutgoingGoodsPosition.Equals(property, null))
                         return false;
 
                     return true;
@@ -280,6 +291,7 @@ namespace JsonMessageApi.Mappers
             CreateMap <OrderUpdate, MessageFromErpDto >()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 //Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "NS_OrderUpdate"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -347,6 +359,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<OrderCancel, MessageFromErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "NS_OrderCancel"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -414,6 +427,7 @@ namespace JsonMessageApi.Mappers
             CreateMap <OrderLineCancel, MessageFromErpDto > ()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "NS_OrderLineCancel"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -481,6 +495,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<ValidationErrorFromErp, MessageFromErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "NS_ValidationError"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -559,9 +574,10 @@ namespace JsonMessageApi.Mappers
             CreateMap<QuantityCorrection, MessageToErpDto>(MemberList.None)
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_StockAdjustment"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
-                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
                 //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
                 //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
                 //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
@@ -637,6 +653,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<StockReport, MessageToErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_InventorySnapshot"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -721,6 +738,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<OutgoingGoodsPositionConfirmation, MessageToErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_PickConfirmation"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -731,7 +749,7 @@ namespace JsonMessageApi.Mappers
                 //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
                 //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
                 //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
-                // .ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
                 // Request
                 .ForPath(dest => dest.Request.GS_PickConfirmation.OrderReference, opt => opt.MapFrom(src => src.OutgoingGoodsNo))
                 .ForPath(dest => dest.Request.GS_PickConfirmation.OrderLineReference, opt => opt.MapFrom(src => long.Parse(src.PositionNo))) // What is this?
@@ -809,6 +827,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<TubAssignment, MessageToErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_ToteAssignment"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -844,7 +863,7 @@ namespace JsonMessageApi.Mappers
                     return true;
                 }));
 
-            // GS_TrolleyComplete => MAKE NEW MODEL
+            // GS_TrolleyComplete => MAKE NEW MODEL -> TrolleyComplete
             CreateMap<MessageToErpDto, TrolleyComplete> ()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 //Header - Next header information NOT required for StoreWare
@@ -879,6 +898,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<TrolleyComplete, MessageToErpDto> ()
                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                // Header - Next header information NOT required for StoreWare
+               .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_TrolleyComplete"))
                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -949,6 +969,7 @@ namespace JsonMessageApi.Mappers
            CreateMap<PickCancelation, MessageToErpDto>()
                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                // Header - Next header information NOT required for StoreWare
+               .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_PickCancellation"))
                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -1023,6 +1044,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<CancelRequest, MessageToErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_PickCancellationRequest"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -1056,7 +1078,7 @@ namespace JsonMessageApi.Mappers
                     return true;
                 }));
 
-            // GS_Activity => MAKE NEW MODEL
+            // GS_Activity => MAKE NEW MODEL -> SystemActivity
             CreateMap<MessageToErpDto, SystemActivity> ()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
@@ -1093,6 +1115,7 @@ namespace JsonMessageApi.Mappers
             CreateMap <SystemActivity, MessageToErpDto> ()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_Activity"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
@@ -1158,6 +1181,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<ValidationErrorToErp, MessageToErpDto>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_ValidationError"))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Created)) // Internal only

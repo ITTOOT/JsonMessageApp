@@ -26,9 +26,9 @@ using Serilog;
 namespace JsonMessageApi.Controllers
 {
     /// This controller allows the client to GET messages from ToErph put there by GFT (POST GFT message)
-    /// <typeparam name="NameOfTo"> RecordType == nameof(TelegramName) </typeparam>
-    /// <typeparam name="NameOfToDto"> The class used for the serialization </typeparam>
-    public abstract class ToController<NameOfTo, NameOfToDto> : ControllerBase
+    /// <typeparam name="MessageName"> RecordType == nameof(TelegramName) </typeparam>
+    /// <typeparam name="MessageDto"> The class used for the serialization </typeparam>
+    public abstract class ToController<MessageName, MessageDto> : ControllerBase
     {
         // Private readonly IHttpContextAccessor _httpContextAccessor;
         private DataContext _context;
@@ -43,17 +43,15 @@ namespace JsonMessageApi.Controllers
             _mirrorOnPost = appSettings.Value.MirrorOnPost;
         }
 
+        //
         [HttpGet]
-        [ActionName(nameof(Get))]
-        //[Route("[action]")]
+        //[ActionName(nameof(GetToErp))]
         [ProducesResponseType(StatusCodes.Status200OK)]
         // Get all the entities in the current context
-        public async Task<ActionResult<List<NameOfToDto>>> Get()
+        public async Task<ActionResult<List<MessageName>>> Get()
         {
-            // Find the entity
-            var tempMessage = _mapper.Map<List<MessageToErpDto>>(await _context.MessagesToErp.ToListAsync());
-
-            // Get sub-entities 
+            // 
+            var tempMessage = _mapper.Map<List<MessageDto>>(await _context.ToErp.ToListAsync()); // ERP model
 
             // HTTP 204 No Content
             if (tempMessage == null)
@@ -63,17 +61,19 @@ namespace JsonMessageApi.Controllers
             return Ok(tempMessage);
         }
 
+        // 
         [HttpPost]
         [ActionName(nameof(Post))]
-        
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        // Get all the entities in the current context
-        public async Task<ActionResult<List<NameOfToDto>>> Post()
+        [ProducesResponseType(StatusCodes.Status200OK)] // For IActionResult
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<MessageDto>> Post() // ERP model
         {
             // Find the entity
-            var tempMessage = _mapper.Map<List<MessageToErpDto>>(await _context.MessagesToErp.ToListAsync());
-
-            // Get sub-entities 
+            var tempMessage = _mapper.Map<List<MessageDto>>(await _context.ToErp.ToListAsync());
 
             // HTTP 204 No Content
             if (tempMessage == null)
@@ -83,8 +83,9 @@ namespace JsonMessageApi.Controllers
             return Ok(tempMessage);
         }
 
-        [Route("[action]")]
+        // 
         [HttpPost]
+        [Route("[action]")]
         [ActionName(nameof(PostToErp))]
         [ProducesResponseType(StatusCodes.Status200OK)] // For IActionResult
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -92,15 +93,16 @@ namespace JsonMessageApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<NameOfToDto>> PostToErp(NameOfToDto message)
+        public async Task<ActionResult<MessageName>> PostToErp(MessageName message)
         {
             try
             {
-                var tempMessage = _mapper.Map<QuantityCorrection>(message); // ERP model
-                await _context.MessagesToErp.AddAsync(tempMessage);
+                // 
+                dynamic tempMessage = _mapper.Map<MessageName>(message); // ERP model
+                await _context.ToErp.AddAsync(tempMessage);
                 await _context.SaveChangesAsync();
 
-                Log.Write((Serilog.Events.LogEventLevel)LogLevel.Information, $"Post Ok {nameof(NameOfTo)} Message={message}");
+                Log.Write((Serilog.Events.LogEventLevel)LogLevel.Information, $"Post Ok {nameof(MessageName)} Message={message}");
                 
                 return CreatedAtAction(nameof(Get), new { id = tempMessage.Id }, _mirrorOnPost ? tempMessage : null);
             }

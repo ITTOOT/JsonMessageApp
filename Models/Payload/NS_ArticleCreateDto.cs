@@ -36,7 +36,7 @@
 		public string Description { get; set; }
 
 		[JsonProperty("BonusActivity")]
-		public long BonusActivity { get; set; }
+		public long? BonusActivity { get; set; }
 
 		[JsonProperty("HotZoneClassification")]
 		public string HotZoneClassification { get; set; }

@@ -3,6 +3,8 @@
 	using System;
 	using System.Collections.Generic;
 	using System.ComponentModel.DataAnnotations.Schema;
+	using System.Diagnostics.CodeAnalysis;
+
 	using Microsoft.EntityFrameworkCore;
 	using Newtonsoft.Json;
 
@@ -33,19 +35,19 @@
     public partial class NS_OrderCreateDto
 	{
 		[JsonProperty("OrderReference")]
-		public Guid OrderReference { get; set; }
+		public Guid? OrderReference { get; set; }
         
         [JsonProperty("BatchReference")]
-		public long BatchReference { get; set; }
+		public long? BatchReference { get; set; }
 
 		[JsonProperty("Destination")]
-		public long Destination { get; set; }
+		public long? Destination { get; set; }
 
 		[JsonProperty("WarehouseCode")]
 		public string WarehouseCode { get; set; }
 
 		[JsonProperty("PickByTime")]
-		public DateTime PickByTime { get; set; }
+		public DateTime? PickByTime { get; set; }
         
         [JsonProperty("BatchDescription")]
 		public string BatchDescription { get; set; }
@@ -59,6 +61,7 @@
         internal string _OrderLines { get; set; }
 
 		[NotMapped]
+		[AllowNull]
 		[JsonProperty("OrderLines")]
 		public List<OrderLineDto> OrderLines
 		{

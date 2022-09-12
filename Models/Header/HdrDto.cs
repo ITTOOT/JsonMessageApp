@@ -25,10 +25,10 @@
 		public string MessageVersion { get; set; }
 
 		[JsonProperty("created")]
-		public DateTime Created { get; set; }
+		public DateTime? Created { get; set; }
 
 		[JsonProperty("uniqueKey")]
-		public Guid UniqueKey { get; set; }
+		public Guid? UniqueKey { get; set; }
 
 		[JsonProperty("senderID")]
 		public string SenderId { get; set; }
@@ -37,7 +37,7 @@
 		public string DestinationId { get; set; }
 
 		[JsonProperty("resendCounter")]
-		public long ResendCounter { get; set; }
+		public long? ResendCounter { get; set; }
 
 
 		public override bool Equals(object obj)

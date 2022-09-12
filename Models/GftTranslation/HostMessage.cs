@@ -32,7 +32,7 @@ namespace JsonMessageApi.Models
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public Constants.RecordType RecordType { get; set; }
+		public Constants.RecordType? RecordType { get; set; }
 		/// <summary>
 		/// Status
 		/// Default Value : Status.Pending
@@ -60,7 +60,7 @@ namespace JsonMessageApi.Models
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public DateTime Created { get; set; }
+		public DateTime? Created { get; set; }
 		/// <summary>
 		/// Process
 		/// Default Value : 
@@ -74,14 +74,14 @@ namespace JsonMessageApi.Models
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public int CcuVersion { get; set; }
+		public int? CcuVersion { get; set; }
 		/// <summary>
 		/// Timestamp
 		/// Default Value : 
 		/// </summary>
 		[XmlAttribute]
 		[JsonProperty]
-		public DateTime Timestamp { get; set; }
+		public DateTime? Timestamp { get; set; }
 		public abstract bool Handle();
 		public virtual void SetFailed(string errorMessage, Constants.Status? status = Constants.Status.Failed)
 		{

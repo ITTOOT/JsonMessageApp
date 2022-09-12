@@ -20,9 +20,9 @@ using Serilog;
 
 namespace JsonMessageApi.Controllers
 {
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_StockAdjustmentController : ToController<QuantityCorrection, QuantityCorrection> // should be to ERP model
+    public class GS_StockAdjustmentController : ToController<QuantityCorrection, MessageToErpDto> // should be to ERP model
     {
         public GS_StockAdjustmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -30,9 +30,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_InventorySnapshotController : ToController<StockReport, StockReport>
+    public class GS_InventorySnapshotController : ToController<StockReport, MessageToErpDto>
     {
         public GS_InventorySnapshotController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -40,9 +40,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_PickConfirmationController : ToController<OutgoingGoodsPositionConfirmation, OutgoingGoodsPositionConfirmation>
+    public class GS_PickConfirmationController : ToController<OutgoingGoodsPositionConfirmation, MessageToErpDto>
     {
         public GS_PickConfirmationController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -50,9 +50,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_ToteAssignmentController : ToController<TubAssignment, TubAssignment>
+    public class GS_ToteAssignmentController : ToController<TubAssignment, MessageToErpDto>
     {
         public GS_ToteAssignmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -60,9 +60,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_TrolleyCompleteController : ToController<TrolleyComplete, TrolleyComplete>
+    public class GS_TrolleyCompleteController : ToController<TrolleyComplete, MessageToErpDto>
     {
         public GS_TrolleyCompleteController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -70,9 +70,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_PickCancellationController : ToController<PickCancelation, PickCancelation>
+    public class GS_PickCancellationController : ToController<PickCancelation, MessageToErpDto>
     {
         public GS_PickCancellationController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -80,9 +80,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_PickCancellationRequestController : ToController<CancelRequest, CancelRequest>
+    public class GS_PickCancellationRequestController : ToController<CancelRequest, MessageToErpDto>
     {
         public GS_PickCancellationRequestController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -90,9 +90,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_ActivityController : ToController<SystemActivity, SystemActivity>
+    public class GS_ActivityController : ToController<SystemActivity, MessageToErpDto>
     {
         public GS_ActivityController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -100,9 +100,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_ValidationErrorController : ToController<ValidationErrorToErp, ValidationErrorToErp>
+    public class GS_ValidationErrorController : ToController<ValidationErrorToErp, MessageToErpDto>
     {
         public GS_ValidationErrorController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {

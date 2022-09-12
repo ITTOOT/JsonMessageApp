@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+
 using AutoMapper;
 
 using JsonMessageApi.Context;
@@ -22,9 +24,9 @@ using Serilog;
 namespace JsonMessageApi.Controllers
 {
     /// Writes an Message into the FromErp Table for GFT
-    /// <typeparam name="NameOfFrom"> RecordType == nameof(TelegramName) </typeparam>
-    /// <typeparam name="NameOfFromDto"> The class used for the serialization </typeparam>
-    public abstract class FromController<NameOfFrom, NameOfFromDto> : ControllerBase
+    /// <typeparam name="MessageName"> RecordType == nameof(TelegramName) </typeparam>
+    /// <typeparam name="MessageDto"> The class used for the serialization </typeparam>
+    public abstract class FromController<MessageName, MessageDto> : ControllerBase
     {
         // Private readonly IHttpContextAccessor _httpContextAccessor;
         private DataContext _context;
@@ -39,14 +41,25 @@ namespace JsonMessageApi.Controllers
             _mirrorOnPost = appSettings.Value.MirrorOnPost;
         }
 
-        
+        //GET: api/<NextOrdersController>
+        // [Authorize]
+        // [Authorize(Roles = "Admin")]
+        // [AllowAnon]
         [HttpGet]
         [ActionName(nameof(Get))]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<NameOfFromDto>>> Get()
+        [ProducesResponseType(StatusCodes.Status200OK)] // For IActionResult
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status409Conflict)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<List<MessageName>>> Get()
         {
-            // Find the entity
-            var messages = _mapper.Map<List<OutgoingGoods>>(await _context.MessagesFromErp.ToListAsync()); // from ERP model
+
+            // Find the entity  
+            dynamic messages = _mapper.Map<List<MessageName>>(await _context.MessagesFromErp.ToListAsync());
+           
+            //await _context.FromErp.AddRangeAsync(messages);
 
             // HTTP 204 No Content
             if (messages == null)
@@ -69,27 +82,30 @@ namespace JsonMessageApi.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<NameOfFromDto>> Post(NameOfFromDto message)
+        public async Task<ActionResult<MessageDto>> Post(MessageDto message)
         {
             try
             {
-                var tempMessage = _mapper.Map<MessageFromErpDto>(message);
-                
-                // Add entities to the data context
+                // 
+                dynamic tempMessage = _mapper.Map<MessageDto>(message);
+
                 await _context.MessagesFromErp.AddAsync(tempMessage);
                 await _context.SaveChangesAsync();
-                
+
                 // HTTP 500 Internal Server Error
                 //if (postedOrder)               
                 //    return StatusCode(500, postedOrder.Value);
-                
+
                 // HTTP 200 OK
                 //return Ok(tempMessage);
 
                 // HTTP 201 created
                 // return CreatedAtAction(nameof(PostOrder), new { postedOrder.Value.header });
 
-                Log.Write((Serilog.Events.LogEventLevel)LogLevel.Information, $"Post Ok {nameof(NameOfFrom)} Message={message}");
+                // HTTP 204 No Content
+                // return NoContent();
+
+                Log.Write((Serilog.Events.LogEventLevel)LogLevel.Information, $"Post Ok {nameof(MessageName)} Message={message}");
 
                 return CreatedAtAction(nameof(Get), new { id = tempMessage.Id }, _mirrorOnPost ? tempMessage : null);
             }
@@ -101,6 +117,6 @@ namespace JsonMessageApi.Controllers
                 return BadRequest();
             }
         }
-        
+
     }
 }

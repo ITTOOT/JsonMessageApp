@@ -27,7 +27,7 @@ namespace JsonMessageApi.Models
 		/// RecordType
 		/// Default Value : 
 		/// </summary> 
-		public Constants.RecordType RecordType { get; set; }
+		public Constants.RecordType? RecordType { get; set; }
 
 		/// <summary>
 		/// Status

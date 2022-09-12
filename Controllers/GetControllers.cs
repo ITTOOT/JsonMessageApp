@@ -18,9 +18,9 @@ using Microsoft.Extensions.Options;
 
 namespace JsonMessageApi.Controllers
 {
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class NS_ArticleCreateController : FromController<MessageFromErpDto, MessageFromErpDto>
+    public class NS_ArticleCreateController : FromController<CreateMaterialMaster, MessageFromErpDto>
     {
         public NS_ArticleCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -28,9 +28,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class NS_OrderCreateController : FromController<MessageFromErpDto, MessageFromErpDto>
+    public class NS_OrderCreateController : FromController<OutgoingGoods, MessageFromErpDto>
     {
         public NS_OrderCreateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -38,9 +38,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class NS_OrderUpdateController : FromController<MessageFromErpDto, MessageFromErpDto>
+    public class NS_OrderUpdateController : FromController<OrderUpdate, MessageFromErpDto>
     {
         public NS_OrderUpdateController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -48,9 +48,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class NS_OrderCancelController : FromController<MessageFromErpDto, MessageFromErpDto>
+    public class NS_OrderCancelController : FromController<OrderCancel, MessageFromErpDto>
     {
         public NS_OrderCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -58,9 +58,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class NS_OrderLineCancelController : FromController<MessageFromErpDto, MessageFromErpDto>
+    public class NS_OrderLineCancelController : FromController<OrderLineCancel, MessageFromErpDto>
     {
         public NS_OrderLineCancelController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -68,9 +68,9 @@ namespace JsonMessageApi.Controllers
         }
     }
 
-    [Route("[controller]")]
+    [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class NS_ValidationErrorController : FromController<MessageFromErpDto, MessageFromErpDto>
+    public class NS_ValidationErrorController : FromController<ValidationErrorFromErp, MessageFromErpDto>
     {
         public NS_ValidationErrorController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {

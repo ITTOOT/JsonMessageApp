@@ -74,7 +74,7 @@ namespace JsonMessageApi.Controllers
         {
             // Find the entity
             var tempMessage = _mapper.Map<List<MessageDto>>(await _context.ToErp.ToListAsync());
-
+                        
             // HTTP 204 No Content
             if (tempMessage == null)
                 return NoContent();

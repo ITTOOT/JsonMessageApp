@@ -15,7 +15,7 @@
     ///
     [Keyless]
     public partial class RequestDto
-	{
-		// Empty request holds request entities
-	}
+    {
+        // Empty request holds request entities
+    }
 }

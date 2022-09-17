@@ -9,6 +9,13 @@ namespace JsonMessageApi.Models
 
     using Newtonsoft.Json;
 
+    public partial class InterfaceMessage
+    {
+        [NotMapped]
+        [JsonProperty("stockReport")]
+        public StockReport stockReport { get; set; }
+    }
+
     [Serializable()]
 	[JsonObject(MemberSerialization.OptIn)]
 	public partial class StockReport : HostMessage, IStockReport

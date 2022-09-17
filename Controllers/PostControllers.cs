@@ -22,7 +22,7 @@ namespace JsonMessageApi.Controllers
 {
     [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_StockAdjustmentController : ToController<QuantityCorrection, MessageToErpDto> // should be to ERP model
+    public class GS_StockAdjustmentController : ToController<InterfaceMessage, MessageToErpDto> // should be to ERP model
     {
         public GS_StockAdjustmentController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {
@@ -32,7 +32,7 @@ namespace JsonMessageApi.Controllers
 
     [Route("WCS/[controller]/v1")]
     [ApiController]
-    public class GS_InventorySnapshotController : ToController<StockReport, MessageToErpDto>
+    public class GS_InventorySnapshotController : ToController<InterfaceMessage, MessageToErpDto>
     {
         public GS_InventorySnapshotController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings) : base(context, mapper, appSettings)
         {

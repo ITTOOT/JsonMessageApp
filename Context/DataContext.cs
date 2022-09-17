@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using JsonMessageApi.Models;
 
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -100,11 +101,11 @@ namespace JsonMessageApi.Context
 
         // Tables - Query DB instances of the resource
         // To
-        public DbSet<QuantityCorrection> ToErp { get; set; } // ToErp - Exists elsewhere
+        public DbSet<InterfaceMessage> ToErp { get; set; } // ToErp - Exists elsewhere
+        //public DbSet<QuantityCorrection> ToErp { get; set; } // ToErp - Exists elsewhere
         //public DbSet<ToErp> ToErp { get; set; } // Swap with above
         // From
-        public DbSet<MessageFromErpDto> MessagesFromErp { get; set; } // Test table
-        public DbSet<OutgoingGoods> FromErp { get; set; } // FromErp - Exists elsewhere
+        public DbSet<MessageFromErpDto> FromErp { get; set; } // FromErp - Exists elsewhere
         //public DbSet<FromErp> FromErp { get; set; } // Swap with above
 
     }

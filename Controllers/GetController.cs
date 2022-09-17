@@ -16,8 +16,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols;
+using System.Diagnostics;
 
 using Serilog;
+using JsonMessageApi.Models.Constants;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -33,7 +35,7 @@ namespace JsonMessageApi.Controllers
         private readonly IMapper _mapper;
         private readonly AppSettings _appSettings;
         bool _mirrorOnPost = false; // Sends a copy of the received object back to the client
-
+       
         public FromController(DataContext context, IMapper mapper, IOptions<AppSettings> appSettings)
         {
             _context = context;
@@ -55,26 +57,42 @@ namespace JsonMessageApi.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<List<MessageName>>> Get()
         {
+            // Find the entity
+            //dynamic messages = _mapper.Map<List<MessageName>>(await _context.MessagesFromErp.ToListAsync());
 
-            // Find the entity  
-            dynamic messages = _mapper.Map<List<MessageName>>(await _context.MessagesFromErp.ToListAsync());
-           
-            //await _context.FromErp.AddRangeAsync(messages);
+            var messages = await _context.FromErp.ToListAsync();
 
+            List<dynamic> result = new List<dynamic>();
+
+            foreach (var m in messages)
+                switch (m.Hdr.MessageType)
+                { 
+                    case "NS_ArticleCreate":
+                        result.Add(_mapper.Map<CreateMaterialMaster>(m));
+                        break;
+
+                    case "NS_OrderCreate":
+                        result.Add(_mapper.Map<OutgoingGoods>(m));
+                        break;
+
+                    default:
+                        continue;
+                }
+            
             // HTTP 204 No Content
-            if (messages == null)
+            if (result == null)
                 return NoContent();
 
             // HTTP 200 OK
-            return Ok(messages);
+            return Ok(result);
         }
 
         /// <summary>
-		/// Writes an Message into the FromErp Table
-		/// </summary>
-		/// <param name="message"></param>
-		/// <returns>Either Status201Created or Status400BadRequest</returns>
-		[HttpPost]
+        /// Writes an Message into the FromErp Table
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns>Either Status201Created or Status400BadRequest</returns>
+        [HttpPost]
         [ActionName(nameof(Post))]
         [ProducesResponseType(StatusCodes.Status200OK)] // For IActionResult
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -89,7 +107,7 @@ namespace JsonMessageApi.Controllers
                 // 
                 dynamic tempMessage = _mapper.Map<MessageDto>(message);
 
-                await _context.MessagesFromErp.AddAsync(tempMessage);
+                await _context.FromErp.AddAsync(tempMessage);
                 await _context.SaveChangesAsync();
 
                 // HTTP 500 Internal Server Error

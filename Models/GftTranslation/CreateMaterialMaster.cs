@@ -9,6 +9,7 @@ namespace JsonMessageApi.Models
 	using Microsoft.VisualBasic;
 
     using Newtonsoft.Json;
+	
     [Serializable()]
 	[JsonObject(MemberSerialization.OptIn)]
 	public partial class CreateMaterialMaster : HostMessage, ICreateMaterialMaster

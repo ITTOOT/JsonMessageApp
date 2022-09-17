@@ -72,7 +72,8 @@ namespace JsonMessageApi.Mappers
             CreateMap<MessageFromErpDto, CreateMaterialMaster>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
-                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                .ForPath(dest => dest.RecordType, opt => opt.MapFrom(src => RecordType.CreateMaterialMaster))
+                //.ForPath(dest => dest.RecordType, opt => opt.MapFrom(src => src.Hdr.MessageType))
                 //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
                 //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
@@ -167,6 +168,7 @@ namespace JsonMessageApi.Mappers
             CreateMap<MessageFromErpDto, OutgoingGoods>()
                 .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
                 // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.RecordType, opt => opt.MapFrom(src => RecordType.OutgoingGoods))
                 //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
                 //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
                 //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
@@ -529,6 +531,90 @@ namespace JsonMessageApi.Mappers
             //--------------------------------------------------------------------------------------------
             // GS = To ERP
             //--------------------------------------------------------------------------------------------
+
+            // GS_StockAdjustment => QuantityCorrection
+            CreateMap<MessageToErpDto, InterfaceMessage>(MemberList.None)
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.CcuVersion, opts => opts.MapFrom(src => src.Hdr.MessageVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Created, opt => opt.MapFrom(src => src.Hdr.Created)) // Internal only
+                //.ForPath(dest => dest.RefId, opt => opt.MapFrom(src => src.Hdr.UniqueKey)) // Ref id is for additional relations
+                //.ForPath(dest => dest.Creator, opt => opt.MapFrom(src => src.Hdr.SenderId)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.DestinationId))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Hdr.ResendCounter))
+                //.ForPath(fromErp => dest.Status, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ErrorInterface, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.Process, opt => opt.MapFrom(src => src.????)) // Internal only
+                //.ForPath(dest => dest.Timestamp, opt => opt.MapFrom(src => utcDate)) // Internal only
+                // Request
+                .ForPath(dest => dest.QuantityCorrection.ArticleNo, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Sku))
+                .ForPath(dest => dest.QuantityCorrection.StorageArea, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.WarehouseCode))
+                //.ForPath(dest => dest.ActualQty, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Quantity)) // +/-
+                .ForPath(dest => dest.QuantityCorrection.Created, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentDate))
+                .ForPath(dest => dest.QuantityCorrection.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Bdcid))
+                .ForPath(dest => dest.QuantityCorrection.Barcode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.Upos))
+                //.ForPath(dest => dest.ReasonCode, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.AdjustmentReason.ToString()))
+                //.ForPath(dest => dest.MovementType, opt => opt.MapFrom(src => src.????)) // Ignore
+                //.ForPath(dest => dest.TargetQty, opt => opt.MapFrom(src => src.????)) // Expected amount
+                .ForPath(dest => dest.QuantityCorrection.Username, opt => opt.MapFrom(src => src.Request.GS_StockAdjustment.BonusNo))
+                .ReverseMap()
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
+            CreateMap<InterfaceMessage, MessageToErpDto>(MemberList.None)
+                .IgnoreAllSourcePropertiesWithAnInaccessibleSetter().IgnoreAllPropertiesWithAnInaccessibleSetter()
+                // Header - Next header information NOT required for StoreWare
+                .ForPath(dest => dest.Hdr.MessageType, opt => opt.MapFrom(src => "GS_StockAdjustment"))
+                //.ForPath(dest => dest.MessageType, opt => opt.MapFrom(src => src.recordType))
+                //.ForPath(dest => dest.MessageVersion, opt => opt.MapFrom(src => src.CcuVersion)) // Zero for original version, // Internal only
+                //.ForPath(dest => dest.Hdr.Created, opt => opt.MapFrom(src => src.Created)) // Internal only
+                //.ForPath(dest => dest.UniqueKey, opt => opt.MapFrom(src => src.RefId)) // Ref id is for additional relations
+                //.ForPath(dest => dest.SenderId, opt => opt.MapFrom(src => src.Creator)) // Internal only
+                //.ForPath(fromErp => dest.DestinationId, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.ResendCounter, opt => opt.MapFrom(src => src.????))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Status))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.ErrorInterface))
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Process)) // Internal only
+                //.ForPath(fromErp => dest.????, opt => opt.MapFrom(src => src.Timestamp)) // Internal only
+                // Request
+                //.ForPath(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+                //.ForPath(dest => dest.Request.GS_StockAdjustment.Sku, opt => opt.MapFrom(src => src.ArticleNo))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.WarehouseCode, opt => opt.MapFrom(src => src.QuantityCorrection.StorageArea))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.Quantity, opt => opt.MapFrom(src => src.QuantityCorrection.ActualQty)) // +/-
+                .ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentDate, opt => opt.MapFrom(src => src.QuantityCorrection.Created))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.Bdcid, opt => opt.MapFrom(src => src.QuantityCorrection.Barcode))
+                .ForPath(dest => dest.Request.GS_StockAdjustment.Upos, opt => opt.MapFrom(src => src.QuantityCorrection.Barcode))
+                //.ForPath(dest => dest.Request.GS_StockAdjustment.AdjustmentReason, opt => opt.MapFrom(src => long.Parse(src.ReasonCode)))
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.MovementType)) // Ignore
+                //.ForPath(dest => dest.????, opt => opt.MapFrom(src => src.TargetQty)) // Expected amount
+                .ForPath(dest => dest.Request.GS_StockAdjustment.BonusNo, opt => opt.MapFrom(src => src.QuantityCorrection.Username))
+                .ReverseMap()
+                .ForAllMembers(x => x.Condition((source, destination, property) =>
+                {
+                    // Ignore null objects & empty string properties
+                    if (property == null)
+                        return false;
+                    if (property.GetType() == typeof(string) && string.IsNullOrEmpty((string)property))
+                        return false;
+                    if (property.GetType() == typeof(int) && int.Equals(property, 0))
+                        return false;
+                    if (property.GetType() == typeof(DateTime) && DateTime.Equals(property, "0001-01-01T00:00:00"))
+                        return false;
+
+                    return true;
+                }));
 
             // GS_StockAdjustment => QuantityCorrection
             CreateMap<MessageToErpDto, QuantityCorrection>(MemberList.None)

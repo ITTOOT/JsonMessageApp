@@ -9,6 +9,13 @@ namespace JsonMessageApi.Models
 
     using Newtonsoft.Json;
 
+    public partial class InterfaceMessage
+    {
+        [NotMapped]
+        [JsonProperty("QuantityCorrection")]
+        public QuantityCorrection QuantityCorrection { get; set; }
+    }
+
     [Serializable()]
 	[JsonObject(MemberSerialization.OptIn)]
 	public partial class QuantityCorrection : HostMessage, IQuantityCorrection
